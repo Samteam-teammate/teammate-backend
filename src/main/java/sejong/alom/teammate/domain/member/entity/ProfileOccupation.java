@@ -1,4 +1,4 @@
-package sejong.alom.teammate.domain.team.entity;
+package sejong.alom.teammate.domain.member.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -15,41 +15,32 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import sejong.alom.teammate.domain.member.entity.Member;
 import sejong.alom.teammate.domain.meta.entity.Occupation;
-import sejong.alom.teammate.global.enums.TeamMemberRole;
-import sejong.alom.teammate.global.util.BaseTimeEntity;
 
 @Entity
 @Getter
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Table(name = "team_member")
-public class TeamMember extends BaseTimeEntity {
+@Table(name = "profile_occupation")
+public class ProfileOccupation {
 	@Id
 	@GeneratedValue(
 		strategy = GenerationType.SEQUENCE,
-		generator = "team_member_seq_gen"
+		generator = "profile_occupation_seq_gen"
 	)
 	@SequenceGenerator(
-		name = "team_member_seq_gen",
-		sequenceName = "team_member_seq"
+		name = "profile_occupation_seq_gen",
+		sequenceName = "profile_occupation_seq"
 	)
-	@Column(name = "team_member_id")
+	@Column(name = "profile_occupation_id")
 	private Long id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "team_id")
-	private Team team;
+	@JoinColumn(name = "profile_id")
+	private Profile profile;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "member_id")
-	private Member member;
-
-	private TeamMemberRole role;
-
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "position_id")
+	@JoinColumn(name = "occupation_id")
 	private Occupation occupation;
 }
