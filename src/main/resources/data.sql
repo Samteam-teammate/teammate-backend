@@ -10,10 +10,10 @@ INSERT INTO skill (skill_id, name) VALUES (nextval('skill_seq'), 'SPRING') ON CO
 INSERT INTO skill (skill_id, name) VALUES (nextval('skill_seq'), 'JAVA') ON CONFLICT (name) DO NOTHING;
 INSERT INTO skill (skill_id, name) VALUES (nextval('skill_seq'), 'UNITY') ON CONFLICT (name) DO NOTHING;
 
--- 포지션 (occupation)
-INSERT INTO occupation (occupation_id, name) VALUES (nextval('occupation_seq'),'FE') ON CONFLICT (name) DO NOTHING;
-INSERT INTO occupation (occupation_id, name) VALUES (nextval('occupation_seq'),'BE') ON CONFLICT (name) DO NOTHING;
-INSERT INTO occupation (occupation_id, name) VALUES (nextval('occupation_seq'),'AI') ON CONFLICT (name) DO NOTHING;
-INSERT INTO occupation (occupation_id, name) VALUES (nextval('occupation_seq'),'DESIGN') ON CONFLICT (name) DO NOTHING;
-INSERT INTO occupation (occupation_id, name) VALUES (nextval('occupation_seq'),'PM') ON CONFLICT (name) DO NOTHING;
-INSERT INTO occupation (occupation_id, name) VALUES (nextval('occupation_seq'),'ETC') ON CONFLICT (name) DO NOTHING;
+-- 포지션 (part)
+INSERT INTO part (part_id, name) VALUES (nextval('part_seq'),'FE') ON CONFLICT (name) DO NOTHING;
+INSERT INTO part (part_id, name) VALUES (nextval('part_seq'),'BE') ON CONFLICT (name) DO NOTHING;
+INSERT INTO part (part_id, name) VALUES (nextval('part_seq'),'AI') ON CONFLICT (name) DO NOTHING;
+INSERT INTO part (part_id, name) VALUES (nextval('part_seq'),'DESIGN') ON CONFLICT (name) DO NOTHING;
+INSERT INTO part (part_id, name) VALUES (nextval('part_seq'),'PM') ON CONFLICT (name) DO NOTHING;
+INSERT INTO part (part_id, name) VALUES (nextval('part_seq'),'ETC') ON CONFLICT (name) DO NOTHING;

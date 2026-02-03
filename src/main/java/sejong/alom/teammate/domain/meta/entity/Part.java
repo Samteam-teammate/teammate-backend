@@ -19,18 +19,18 @@ import sejong.alom.teammate.global.util.BaseTimeEntity;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Table(name = "occupation")
-public class Occupation extends BaseTimeEntity {
+@Table(name = "part")
+public class Part extends BaseTimeEntity {
 	@Id
 	@GeneratedValue(
 		strategy = GenerationType.SEQUENCE,
-		generator = "occupation_seq_gen"
+		generator = "part_seq_gen"
 	)
 	@SequenceGenerator(
-		name = "occupation_seq_gen",
-		sequenceName = "occupation_seq"
+		name = "part_seq_gen",
+		sequenceName = "part_seq"
 	)
-	@Column(name = "occupation_id")
+	@Column(name = "part_id")
 	private Long id;
 
 	@Column(unique = true, nullable = false)

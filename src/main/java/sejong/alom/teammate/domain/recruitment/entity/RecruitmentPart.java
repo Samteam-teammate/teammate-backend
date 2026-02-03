@@ -15,7 +15,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import sejong.alom.teammate.domain.meta.entity.Occupation;
+import sejong.alom.teammate.domain.meta.entity.Part;
 import sejong.alom.teammate.global.util.BaseTimeEntity;
 
 @Entity
@@ -23,18 +23,18 @@ import sejong.alom.teammate.global.util.BaseTimeEntity;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Table(name = "recruitment_occupation")
-public class RecruitmentOccupation extends BaseTimeEntity {
+@Table(name = "recruitment_part")
+public class RecruitmentPart extends BaseTimeEntity {
 	@Id
 	@GeneratedValue(
 		strategy = GenerationType.SEQUENCE,
-		generator = "recruitment_occupation_seq_gen"
+		generator = "recruitment_part_seq_gen"
 	)
 	@SequenceGenerator(
-		name = "recruitment_occupation_seq_gen",
-		sequenceName = "recruitment_occupation_seq"
+		name = "recruitment_part_seq_gen",
+		sequenceName = "recruitment_part_seq"
 	)
-	@Column(name = "recruitment_occupation_id")
+	@Column(name = "recruitment_part_id")
 	private Long id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -42,6 +42,6 @@ public class RecruitmentOccupation extends BaseTimeEntity {
 	private Recruitment recruitment;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "occupation_id")
-	private Occupation occupation;
+	@JoinColumn(name = "part_id")
+	private Part part;
 }
