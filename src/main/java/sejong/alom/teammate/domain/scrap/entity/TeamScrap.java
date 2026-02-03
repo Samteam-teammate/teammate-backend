@@ -1,4 +1,4 @@
-package sejong.alom.teammate.domain.member.entity;
+package sejong.alom.teammate.domain.scrap.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -15,6 +15,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import sejong.alom.teammate.domain.member.entity.Member;
+import sejong.alom.teammate.domain.team.entity.Team;
 import sejong.alom.teammate.global.util.BaseTimeEntity;
 
 @Entity
@@ -22,23 +24,23 @@ import sejong.alom.teammate.global.util.BaseTimeEntity;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Table(name = "profile_scrap")
-public class ProfileScrap extends BaseTimeEntity {
+@Table(name = "team_scrap")
+public class TeamScrap extends BaseTimeEntity {
 	@Id
 	@GeneratedValue(
 		strategy = GenerationType.SEQUENCE,
-		generator = "profile_scrap_seq_gen"
+		generator = "team_scrap_seq_gen"
 	)
 	@SequenceGenerator(
-		name = "profile_scrap_seq_gen",
-		sequenceName = "profile_scrap_seq"
+		name = "team_scrap_seq_gen",
+		sequenceName = "team_scrap_seq"
 	)
-	@Column(name = "profile_scrap_id")
+	@Column(name = "team_scrap_id")
 	private Long id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "profile_id")
-	private Profile profile;
+	@JoinColumn(name = "team_id")
+	private Team team;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "member_id")

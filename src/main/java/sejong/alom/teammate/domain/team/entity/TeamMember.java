@@ -16,7 +16,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import sejong.alom.teammate.domain.member.entity.Member;
-import sejong.alom.teammate.domain.meta.entity.Occupation;
+import sejong.alom.teammate.domain.meta.entity.Part;
 import sejong.alom.teammate.global.enums.TeamMemberRole;
 import sejong.alom.teammate.global.util.BaseTimeEntity;
 
@@ -50,6 +50,6 @@ public class TeamMember extends BaseTimeEntity {
 	private TeamMemberRole role;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "position_id")
-	private Occupation occupation;
+	@JoinColumn(name = "part_id")
+	private Part part;
 }
