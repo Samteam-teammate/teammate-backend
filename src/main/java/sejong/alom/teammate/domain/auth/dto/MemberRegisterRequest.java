@@ -4,6 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public record MemberRegisterRequest(
+	@NotBlank String tempToken,
 	@NotBlank String name,
 	@NotNull Long studentId,
 	@NotBlank String nickname,

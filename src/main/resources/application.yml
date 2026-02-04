@@ -26,3 +26,9 @@ spring:
     redis:
       host: ${REDIS_NAME:redis}
       port: ${REDIS_PORT:6379}
+
+custom:
+  jwt:
+    secret-key: ${JWT_SECRET:test_jwt}
+    access-expire-seconds: ${JWT_ACCESS:600000}
+    refresh-expire-seconds: ${JWT_REFRESH:600000}
