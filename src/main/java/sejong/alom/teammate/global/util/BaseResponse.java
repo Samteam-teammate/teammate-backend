@@ -7,4 +7,7 @@ public record BaseResponse<T>(
 	String message,
 	T detail
 ) {
+	public static BaseResponse<?> success(String message) {
+		return new BaseResponse<>(HttpStatus.OK, message, null);
+	}
 }
