@@ -37,7 +37,7 @@ public class Member extends BaseTimeEntity {
 	@Column(nullable = false)
 	private String name;
 
-	@Column(nullable = false)
+	@Column(unique = true, nullable = false)
 	private Long studentId;
 
 	private Boolean notificationSetting;
