@@ -2,7 +2,9 @@ package sejong.alom.teammate.domain.auth.service;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,11 +19,9 @@ import sejong.alom.teammate.domain.auth.dto.MemberRegisterRequest;
 import sejong.alom.teammate.domain.auth.dto.TokenDto;
 import sejong.alom.teammate.domain.auth.provider.AuthTokenProvider;
 import sejong.alom.teammate.domain.member.entity.Member;
-import sejong.alom.teammate.domain.member.entity.Profile;
 import sejong.alom.teammate.domain.member.repository.MemberRepository;
 import sejong.alom.teammate.domain.member.repository.ProfileRepository;
 import sejong.alom.teammate.global.enums.MemberRole;
-import sejong.alom.teammate.global.enums.MemberState;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +31,7 @@ public class AuthService {
 	private final ProfileRepository profileRepository;
 	private final SejongPortalLoginService sejongPortalLoginService;
 	private final AuthTokenProvider authTokenProvider;
+	private final RedisTemplate<String, String> redisTemplate;
 
 	@Transactional
 	public TokenDto login(MemberLoginRequest request) {
@@ -64,29 +65,21 @@ public class AuthService {
 		String image = null;
 
 		// 새로운 member, profile 데이터 저장
-		// TODO: DTO toEntity 메서드 작성 고려
-		Member member = memberRepository.save(
-			Member.builder()
-				.name(request.name())
-				.studentId(request.studentId())
-				.notificationSetting(true)
-				.state(MemberState.ACTIVE)
-				.build()
-		);
-		profileRepository.save(
-			Profile.builder()
-				.member(member)
-				.nickname(request.nickname())
-				.bio(request.bio())
-				.portfolioUrl(request.portfolioUrl())
-				.isOpenToWork(request.isOpenToWork())
-				.isVisible(request.isVisible())
-				.profileImage(image)
-				.build()
-		);
+		Member member = memberRepository.save(request.toMember());
+		profileRepository.save(request.toProfile(member, image));
 
 		// 회원가입 절차 완료 시 토큰 발행
 		return issueToken(request.studentId());
+	}
+
+	@Transactional
+	public void logout(String accessToken) {
+		// access 토큰을 블랙리스트로 등록
+		Long accessRemainingMs = authTokenProvider.getRemainingMs(accessToken);
+		redisTemplate.opsForValue().set("auth:blacklist:" + accessToken, "logout", accessRemainingMs, TimeUnit.MILLISECONDS);
+
+		// refresh 토큰을 redis에서 삭제
+		redisTemplate.delete("auth:refresh:" + authTokenProvider.getSubject(accessToken));
 	}
 
 	private SejongMemberInfo trySejongPortalLogin(Long studentId, String password) {
@@ -107,6 +100,8 @@ public class AuthService {
 		String accessToken = authTokenProvider.createAccessToken(id, claims);
 		String refreshToken = authTokenProvider.createRefreshToken(id, claims);
 		Long expiration = authTokenProvider.getRefreshExpirationSeconds();
+
+		redisTemplate.opsForValue().set("auth:refresh:" + id, refreshToken, expiration * 1000L, TimeUnit.MILLISECONDS);
 
 		return TokenDto.of(accessToken, refreshToken, expiration);
 	}

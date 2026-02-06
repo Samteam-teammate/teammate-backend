@@ -6,6 +6,7 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
@@ -40,7 +41,7 @@ public class AuthController {
 		setTokenInResponse(response, dto);
 
 		// 응답 반환
-		return ResponseEntity.ok(BaseResponse.success("로그인을 완료했습니다."));
+		return ResponseEntity.ok(BaseResponse.success("로그인 되었습니다."));
 	}
 
 	@PostMapping(value = "/signup", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -56,7 +57,28 @@ public class AuthController {
 		setTokenInResponse(response, dto);
 
 		// 응답 반환
-		return ResponseEntity.ok(BaseResponse.success("회원가입을 완료했습니다."));
+		return ResponseEntity.ok(BaseResponse.success("회원가입 되었습니다."));
+	}
+
+	@PostMapping("/logout")
+	public ResponseEntity<BaseResponse<?>> logout(
+		@RequestHeader("Authorization") String authHeader,
+		HttpServletResponse response
+	) {
+		// 로그아웃 - 토큰 관리
+		authService.logout(authHeader.substring(7));
+
+		// 쿠키에서 리프레시 토큰 삭제
+		ResponseCookie cookie = ResponseCookie.from("refreshToken", "")
+			.httpOnly(true)
+			.secure(true)
+			.path("/")
+			.maxAge(0)
+			.sameSite("None")
+			.build();
+		response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+
+		return ResponseEntity.ok(BaseResponse.success("로그아웃 되었습니다."));
 	}
 
 	private void setTokenInResponse(HttpServletResponse response, TokenDto dto) {
