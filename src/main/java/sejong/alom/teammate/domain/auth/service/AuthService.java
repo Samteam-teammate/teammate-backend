@@ -82,6 +82,25 @@ public class AuthService {
 		redisTemplate.delete("auth:refresh:" + authTokenProvider.getSubject(accessToken));
 	}
 
+	@Transactional
+	public TokenDto reissueToken(String refreshToken) {
+		if (!authTokenProvider.isValidToken(refreshToken)) {
+			throw new RuntimeException("유효하지 않은 토큰입니다.");
+		}
+
+		long memberId = Long.parseLong(authTokenProvider.getSubject(refreshToken));
+		String savedRefreshToken = redisTemplate.opsForValue().get("auth:refresh" + memberId);
+
+		if (savedRefreshToken == null || !savedRefreshToken.equals(refreshToken)) {
+			redisTemplate.delete("auth:refresh:" + memberId);
+			throw new RuntimeException("토큰이 일치하지 않습니다.");
+		}
+
+		redisTemplate.delete("auth:refresh:" + memberId);
+
+		return issueToken(memberId);
+	}
+
 	private SejongMemberInfo trySejongPortalLogin(Long studentId, String password) {
 		try {
 			return sejongPortalLoginService.getMemberAuthInfos(String.valueOf(studentId), password);
