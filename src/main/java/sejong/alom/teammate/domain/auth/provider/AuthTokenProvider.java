@@ -1,9 +1,7 @@
 package sejong.alom.teammate.domain.auth.provider;
 
-import java.util.Arrays;
 import java.util.Date;
 import java.util.Map;
-import java.util.Optional;
 
 import javax.crypto.SecretKey;
 
@@ -13,8 +11,6 @@ import org.springframework.stereotype.Component;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
 
 @Component
 public class AuthTokenProvider {
@@ -78,17 +74,8 @@ public class AuthTokenProvider {
 			.getSubject();
 	}
 
-	public Optional<String> getRefreshToken(HttpServletRequest request) {
-		Cookie[] cookies = request.getCookies();
-
-		if (cookies == null || cookies.length == 0) {
-			return Optional.empty();
-		}
-
-		return Arrays.stream(cookies)
-			.filter(cookie -> "refreshToken".equals(cookie.getName()))
-			.map(Cookie::getValue)
-			.findFirst();
+	public Long getRemainingMs(String token) {
+		return (System.currentTimeMillis() - getClaims(token).getExpiration().getTime());
 	}
 
 	public Long getRefreshExpirationSeconds() {
