@@ -4,6 +4,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -79,6 +80,21 @@ public class AuthController {
 		response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
 		return ResponseEntity.ok(BaseResponse.success("로그아웃 되었습니다."));
+	}
+
+	@PostMapping("/refresh")
+	public ResponseEntity<BaseResponse<?>> refresh(
+		@CookieValue(value = "refreshToken") String refreshToken,
+		HttpServletResponse response
+	) {
+		// 토큰 재발행
+		TokenDto dto = authService.reissueToken(refreshToken);
+
+		// 쿠키와 헤더에 토큰 저장
+		setTokenInResponse(response, dto);
+
+		// 응답 반환
+		return ResponseEntity.ok(BaseResponse.success("토큰이 재발급되었습니다."));
 	}
 
 	private void setTokenInResponse(HttpServletResponse response, TokenDto dto) {
