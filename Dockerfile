@@ -1,5 +1,5 @@
 # 1단계: 빌드
-FROM gradle:8.5-jdk21 AS builder
+FROM gradle:8.5-jdk21 AS build
 
 WORKDIR /app
 
