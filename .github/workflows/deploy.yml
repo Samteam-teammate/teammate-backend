@@ -10,6 +10,7 @@ on:
       - "/Dockerfile"
     branches:
       - deploy
+  workflow_dispatch:
 
 jobs:
   getInstanceId:
