@@ -9,7 +9,7 @@ on:
       - "/settings.gradle"
       - "/Dockerfile"
     branches:
-      - deploy
+      - main
   workflow_dispatch:
 
 jobs:
