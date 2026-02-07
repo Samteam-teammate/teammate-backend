@@ -167,6 +167,7 @@ jobs:
               -d --name teammate-server \
               -p 8080:8080 \
               --network teammate-network \
+              --env-file /app/.env \
               ghcr.io/${{ needs.buildImageAndPush.outputs.owner_lc }}/${{ needs.buildImageAndPush.outputs.image_name }}:latest
             
             docker rmi $(docker images -f "dangling=true" -q) || true
