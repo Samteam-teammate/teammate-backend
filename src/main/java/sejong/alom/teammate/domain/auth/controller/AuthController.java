@@ -1,7 +1,6 @@
 package sejong.alom.teammate.domain.auth.controller;
 
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
@@ -9,9 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
@@ -31,6 +28,7 @@ public class AuthController {
 	private final AuthService authService;
 
 	@PostMapping("/login")
+	@Tag(name = "로그인 API")
 	public ResponseEntity<BaseResponse<?>> login(
 		@Valid @RequestBody MemberLoginRequest request,
 		HttpServletResponse response
@@ -45,14 +43,15 @@ public class AuthController {
 		return ResponseEntity.ok(BaseResponse.success("로그인 되었습니다."));
 	}
 
-	@PostMapping(value = "/signup", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	@PostMapping(value = "/signup"/*, consumes = MediaType.MULTIPART_FORM_DATA_VALUE*/)
+	@Tag(name = "회원가입 API (프로필 사진 제외)")
 	public ResponseEntity<BaseResponse<?>> signup(
-		@Valid @RequestPart("profileInfo")MemberRegisterRequest request,
-		@RequestPart("profileImage")MultipartFile profileImage,
+		@Valid @RequestBody MemberRegisterRequest request,
+		//@RequestPart("profileImage")MultipartFile profileImage,
 		HttpServletResponse response
 	) {
 		// DB에 회원 저장
-		TokenDto dto = authService.register(request, profileImage);
+		TokenDto dto = authService.register(request, null);
 
 		// 헤더와 쿠키에 토큰 저장
 		setTokenInResponse(response, dto);
@@ -62,6 +61,7 @@ public class AuthController {
 	}
 
 	@PostMapping("/logout")
+	@Tag(name = "로그아웃 API")
 	public ResponseEntity<BaseResponse<?>> logout(
 		@RequestHeader("Authorization") String authHeader,
 		HttpServletResponse response
@@ -83,6 +83,7 @@ public class AuthController {
 	}
 
 	@PostMapping("/refresh")
+	@Tag(name = "토큰 재발급 API")
 	public ResponseEntity<BaseResponse<?>> refresh(
 		@CookieValue(value = "refreshToken") String refreshToken,
 		HttpServletResponse response

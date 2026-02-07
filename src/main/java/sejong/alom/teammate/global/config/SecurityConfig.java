@@ -24,6 +24,9 @@ import lombok.RequiredArgsConstructor;
 @EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
+	// private final AuthTokenProvider authTokenProvider;
+	// private final RedisTemplate<String, String> redisTemplate;
+
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) {
 		http
@@ -37,7 +40,7 @@ public class SecurityConfig {
 			//.exceptionHandling(eh -> eh.authenticationEntryPoint())
 			.authorizeHttpRequests(auth -> auth
 				.anyRequest().permitAll());
-			//.addFilterBefore(new , UsernamePasswordAuthenticationFilter.class);
+			//.addFilterBefore(new JwtAuthenticationFilter(authTokenProvider, redisTemplate), UsernamePasswordAuthenticationFilter.class);
 
 		return http.build();
 	}
