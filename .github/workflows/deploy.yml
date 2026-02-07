@@ -73,6 +73,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # 1. QEMU 설치 추가 (멀티 아키텍처 빌드용)
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
       - name: Docker Buildx 설치
         uses: docker/setup-buildx-action@v2
 
@@ -100,6 +104,7 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
+          platforms: linux/amd64,linux/arm64
           cache-from: type=registry,ref=ghcr.io/${{ steps.export_owner.outputs.owner_lc }}/teammate-server:cache
           cache-to: type=registry,ref=ghcr.io/${{ steps.export_owner.outputs.owner_lc }}/teammate-server:cache,mode=max
           tags: |
