@@ -12,7 +12,7 @@ COPY src /app/src
 RUN gradle clean bootJar -x test
 
 # 2단계: Run stage
-FROM openjdk:17-slim
+FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 
 # 시간대 설정 (Seoul)
