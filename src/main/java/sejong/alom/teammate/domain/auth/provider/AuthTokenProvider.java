@@ -1,16 +1,24 @@
 package sejong.alom.teammate.domain.auth.provider;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
 
 import javax.crypto.SecretKey;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import sejong.alom.teammate.global.enums.MemberRole;
 
 @Component
 public class AuthTokenProvider {
@@ -27,7 +35,7 @@ public class AuthTokenProvider {
 		return Keys.hmacShaKeyFor(secret.getBytes());
 	}
 
-	private String buildToken(String subject, long expireSeconds, Map<String, Object> claims) {
+	private String buildToken(String subject, long expireSeconds, Map<String, String> claims) {
 		Date issueAt = new Date();
 		Date expiration = new Date(issueAt.getTime() + 1000L * expireSeconds);
 
@@ -40,11 +48,11 @@ public class AuthTokenProvider {
 			.compact();
 	}
 
-	public String createAccessToken(Long id, Map<String, Object> claims) {
+	public String createAccessToken(Long id, Map<String, String> claims) {
 		return buildToken(String.valueOf(id), jwtAccessExpirationSeconds, claims);
 	}
 
-	public String createRefreshToken(Long id, Map<String, Object> claims) {
+	public String createRefreshToken(Long id, Map<String, String> claims) {
 		return buildToken(String.valueOf(id), jwtRefreshExpirationSeconds, claims);
 	}
 
@@ -61,6 +69,11 @@ public class AuthTokenProvider {
 		}
 	}
 
+	public boolean isTempToken(String token) {
+		return MemberRole.ROLE_GUEST.name()
+			.equals(getClaims(token).get("role", String.class));
+	}
+
 	public Claims getClaims(String token) {
 		return Jwts.parser()
 			.verifyWith(secretKey())
@@ -75,7 +88,7 @@ public class AuthTokenProvider {
 	}
 
 	public Long getRemainingMs(String token) {
-		return (System.currentTimeMillis() - getClaims(token).getExpiration().getTime());
+		return (getClaims(token).getExpiration().getTime() - System.currentTimeMillis());
 	}
 
 	public Long getRefreshExpirationSeconds() {
@@ -88,5 +101,18 @@ public class AuthTokenProvider {
 		}
 
 		return getSubject(token);
+	}
+
+	public Authentication getAuthentication(String token) {
+		Claims claims = getClaims(token);
+
+		Collection<? extends GrantedAuthority> authorities =
+			Arrays.stream(claims.get("role").toString().split(","))
+				.map(SimpleGrantedAuthority::new)
+				.toList();
+
+		User principal = new User(claims.getSubject(), "", authorities);
+
+		return new UsernamePasswordAuthenticationToken(principal, "", authorities);
 	}
 }

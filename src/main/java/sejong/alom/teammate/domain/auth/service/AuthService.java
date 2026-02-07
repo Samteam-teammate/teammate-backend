@@ -51,7 +51,10 @@ public class AuthService {
 
 	@Transactional
 	public TokenDto register(MemberRegisterRequest request, MultipartFile profileImage) {
-		// 임시 토큰에서 학번 추출 후 검증
+		// 임시 토큰 검증
+		if (!authTokenProvider.isValidToken(request.tempToken())) {
+			throw new RuntimeException("유효하지 않은 토큰입니다.");
+		}
 		String studentId = authTokenProvider.getStudentIdFromTempToken(request.tempToken());
 
 		if (!studentId.equals(String.valueOf(request.studentId()))) {
@@ -84,20 +87,26 @@ public class AuthService {
 
 	@Transactional
 	public TokenDto reissueToken(String refreshToken) {
+		// refresh token 유효성 확인
 		if (!authTokenProvider.isValidToken(refreshToken)) {
 			throw new RuntimeException("유효하지 않은 토큰입니다.");
 		}
 
+		// memberId 추출, redis에 저장된 refresh token 획득
 		long memberId = Long.parseLong(authTokenProvider.getSubject(refreshToken));
-		String savedRefreshToken = redisTemplate.opsForValue().get("auth:refresh" + memberId);
+		String savedRefreshToken = redisTemplate.opsForValue().get("auth:refresh:" + memberId);
+		log.info("saved refresh token: " + savedRefreshToken);
+		log.info("request refresh token: " + refreshToken);
 
+		// 기존과 동일한 토큰인지 확인
 		if (savedRefreshToken == null || !savedRefreshToken.equals(refreshToken)) {
-			redisTemplate.delete("auth:refresh:" + memberId);
 			throw new RuntimeException("토큰이 일치하지 않습니다.");
 		}
 
+		// 기존 토큰 삭제
 		redisTemplate.delete("auth:refresh:" + memberId);
 
+		// 새로운 토큰 발행, redis에 refresh 토큰 저장
 		return issueToken(memberId);
 	}
 
@@ -113,20 +122,31 @@ public class AuthService {
 	}
 
 	private TokenDto issueToken(Long id) {
-		Map<String, Object> claims = new HashMap<>();
+		Map<String, String> claims = new HashMap<>();
 		claims.put("role", MemberRole.ROLE_USER.name());
 
+		// 새로운 토큰 생성
 		String accessToken = authTokenProvider.createAccessToken(id, claims);
 		String refreshToken = authTokenProvider.createRefreshToken(id, claims);
 		Long expiration = authTokenProvider.getRefreshExpirationSeconds();
 
-		redisTemplate.opsForValue().set("auth:refresh:" + id, refreshToken, expiration * 1000L, TimeUnit.MILLISECONDS);
+		// redis에 refresh token 저장
+		try {
+			log.info("Redis 저장 시도 - Key: {}, Value: {}", "auth:refresh:" + id, refreshToken);
+			redisTemplate.opsForValue()
+				.set("auth:refresh:" + id, refreshToken, expiration * 1000L, TimeUnit.MILLISECONDS);
+
+			String saved = redisTemplate.opsForValue().get("auth:refresh:" + id);
+			log.info("저장 직후 확인: {}", saved);
+		} catch (Exception e) {
+			log.error("redis 저장 에러:" + e);
+		}
 
 		return TokenDto.of(accessToken, refreshToken, expiration);
 	}
 
 	private String issueTempToken(Long studentId) {
-		Map<String, Object> claims = new HashMap<>();
+		Map<String, String> claims = new HashMap<>();
 		claims.put("role", MemberRole.ROLE_GUEST.name());
 
 		return authTokenProvider.createAccessToken(studentId, claims);
