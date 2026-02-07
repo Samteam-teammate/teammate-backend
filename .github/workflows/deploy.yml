@@ -145,7 +145,7 @@ jobs:
             
             docker stop teammate-redis 2>/dev/null || true && \
             docker rm teammate-redis 2>/dev/null || true && \
-            docker run -- restart always \
+            docker run --restart always \
               -d --name teammate-redis \
               -p 6379:6379 \
               --network teammate-network \
