@@ -1,0 +1,167 @@
+name: teammate-server-deploy
+
+on:
+  push:
+    paths:
+      - ".github/workflows/**"
+      - "/src/**"
+      - "/build.gradle"
+      - "/settings.gradle"
+      - "/Dockerfile"
+    branches:
+      - deploy
+  workflow_dispatch:
+
+jobs:
+  getInstanceId:
+    name: Get EC2 Instance ID
+    runs-on: ubuntu-latest
+    outputs:
+      instance_id: ${{ steps.get_instance_id.outputs.instance_id }}
+    steps:
+      - name: AWS Credentials 설정
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ secrets.AWS_REGION }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: 인스턴스 ID 가져오기
+        id: get_instance_id
+        run: |
+          INSTANCE_ID=$(aws ec2 describe-instances \
+            --filters "Name=tag:Name,Values=teammate-server" \
+                      "Name=instance-state-name,Values=running" \
+            --query "Reservations[].Instances[].InstanceId" \
+            --output text)
+          echo "instance_id=$INSTANCE_ID" >> $GITHUB_OUTPUT
+
+  makeTagAndRelease:
+    name: Create Tag & Release
+    runs-on: ubuntu-latest
+    outputs:
+      tag_name: ${{ steps.create_tag.outputs.new_tag }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Tag 생성
+        id: create_tag
+        uses: mathieudutour/github-tag-action@v6.2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          tag_prefix: v-prd-
+
+      - name: Release 생성
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.create_tag.outputs.new_tag }}
+          release_name: "Server Release ${{ steps.create_tag.outputs.new_tag }}"
+          body: ${{ steps.create_tag.outputs.changelog }}
+          draft: false
+          prerelease: false
+
+  buildImageAndPush:
+    name: Docker Image Build & Push
+    needs: makeTagAndRelease
+    runs-on: ubuntu-latest
+    outputs:
+      owner_lc: ${{ steps.export_owner.outputs.owner_lc }}
+      image_name: ${{ steps.export_image.outputs.image_name }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Docker Buildx 설치
+        uses: docker/setup-buildx-action@v2
+
+      - name: 레지스트리 로그인
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: set lower case owner name
+        id: export_owner
+        run: |
+          OWNER_LC="${GITHUB_REPOSITORY_OWNER,,}"
+          echo "owner_lc=$OWNER_LC" >> $GITHUB_OUTPUT
+
+      - name: export image name
+        id: export_image
+        run: |
+          echo "image_name=teammate-server" >> $GITHUB_OUTPUT
+
+      - name: build & push
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          cache-from: type=registry,ref=ghcr.io/${{ steps.export_owner.outputs.owner_lc }}/teammate-server:cache
+          cache-to: type=registry,ref=ghcr.io/${{ steps.export_owner.outputs.owner_lc }}/teammate-server:cache,mode=max
+          tags: |
+            ghcr.io/${{ steps.export_owner.outputs.owner_lc }}/teammate-server:${{ needs.makeTagAndRelease.outputs.tag_name }},
+            ghcr.io/${{ steps.export_owner.outputs.owner_lc }}/teammate-server:latest
+            
+  deploy:
+    name: EC2에 배포
+    runs-on: ubuntu-latest
+    needs: [buildImageAndPush, getInstanceId]
+    steps:
+      - name: AWS SSM Send-Command
+        uses: peterkimzz/aws-ssm-send-command@master
+        with:
+          aws-region: ${{ secrets.AWS_REGION }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          instance-ids: ${{ needs.getInstanceId.outputs.instance_id }}
+          working-directory: /
+          comment: Deploy
+          command: |
+            set -e
+            export HOME=/root
+            echo "${{ secrets.TK_GITHUB_ACCESS_TOKEN }}" \
+              | docker login ghcr.io \
+                -u ${{ secrets.TK_GITHUB_ACCESS_TOKEN_OWNER }} \
+                --password-stdin
+            
+            echo "${{ secrets.ENV_CONTENT }}" | base64 -d > /app/.env
+            
+            sudo docker network create teammate-network 2>/dev/null || true
+            
+            docker stop teammate-db 2>/dev/null || true && \
+            docker rm teammate-db 2>/dev/null || true && \
+            docker run --restart always \
+              -d --name teammate-db \
+              -p 5432:5432 \
+              --network teammate-network \
+              -e POSTGRES_USER=${{ secrets.DB_USERNAME }} \
+              -e POSTGRES_PASSWORD=${{ secrets.DB_PASSWORD }} \
+              -e POSTGRES_DB=${{ secrets.DB_NAME }} \
+              postgres:15-alpine
+            
+            docker stop teammate-redis 2>/dev/null || true && \
+            docker rm teammate-redis 2>/dev/null || true && \
+            docker run -- restart always \
+              -d --name teammate-redis \
+              -p 6379:6379 \
+              --network teammate-network \
+              redis:7.2-alpine \
+              --appendonly yes
+            
+            sleep 10
+            
+            docker pull ghcr.io/${{ needs.buildImageAndPush.outputs.owner_lc }}/${{ needs.buildImageAndPush.outputs.image_name }}:latest && \
+            docker stop teammate-server 2>/dev/null || true && \
+            docker rm teammate-server 2>/dev/null || true && \
+            docker run --restart always \
+              -e TZ=Asia/Seoul \
+              -d --name teammate-server \
+              -p 8080:8080 \
+              --network teammate-network \
+              ghcr.io/${{ needs.buildImageAndPush.outputs.owner_lc }}/${{ needs.buildImageAndPush.outputs.image_name }}:latest
+            
+            docker rmi $(docker images -f "dangling=true" -q) || true
