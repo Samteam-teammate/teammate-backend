@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -28,7 +29,7 @@ public class AuthController {
 	private final AuthService authService;
 
 	@PostMapping("/login")
-	@Tag(name = "로그인 API")
+	@Operation(summary = "로그인 API")
 	public ResponseEntity<BaseResponse<?>> login(
 		@Valid @RequestBody MemberLoginRequest request,
 		HttpServletResponse response
@@ -44,7 +45,7 @@ public class AuthController {
 	}
 
 	@PostMapping(value = "/signup"/*, consumes = MediaType.MULTIPART_FORM_DATA_VALUE*/)
-	@Tag(name = "회원가입 API (프로필 사진 제외)")
+	@Operation(summary = "회원가입 API (프로필 사진 제외)")
 	public ResponseEntity<BaseResponse<?>> signup(
 		@Valid @RequestBody MemberRegisterRequest request,
 		//@RequestPart("profileImage")MultipartFile profileImage,
@@ -61,7 +62,7 @@ public class AuthController {
 	}
 
 	@PostMapping("/logout")
-	@Tag(name = "로그아웃 API")
+	@Operation(summary = "로그아웃 API")
 	public ResponseEntity<BaseResponse<?>> logout(
 		@RequestHeader("Authorization") String authHeader,
 		HttpServletResponse response
@@ -83,7 +84,7 @@ public class AuthController {
 	}
 
 	@PostMapping("/refresh")
-	@Tag(name = "토큰 재발급 API")
+	@Operation(summary = "토큰 재발급 API")
 	public ResponseEntity<BaseResponse<?>> refresh(
 		@CookieValue(value = "refreshToken") String refreshToken,
 		HttpServletResponse response
