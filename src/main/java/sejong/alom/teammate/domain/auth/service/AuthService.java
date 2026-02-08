@@ -22,6 +22,8 @@ import sejong.alom.teammate.domain.member.entity.Member;
 import sejong.alom.teammate.domain.member.repository.MemberRepository;
 import sejong.alom.teammate.domain.member.repository.ProfileRepository;
 import sejong.alom.teammate.global.enums.MemberRole;
+import sejong.alom.teammate.global.exception.BusinessException;
+import sejong.alom.teammate.global.exception.docs.ErrorCode;
 
 @Service
 @RequiredArgsConstructor
@@ -43,25 +45,31 @@ public class AuthService {
 			return issueToken(request.studentId());
 		}
 
-		// 그렇지 않으면 임시 토큰 발행 후 에러 처리 -> 임시 토큰은 사용자 정보와 함께 ResponseBody로 전달
-		// TODO: 에러 핸들링
+		// 그렇지 않으면 임시 토큰 발행 후 예외 처리 -> 임시 토큰은 사용자 정보와 함께 ResponseBody로 전달
 		String tempToken = issueTempToken(request.studentId());
-		throw new RuntimeException("404" + memberInfo.getName() + memberInfo.getStudentId() + tempToken);
+		Map<String, Object> data = new HashMap<>();
+		data.put("tempToken", tempToken);
+		data.put("studentId", memberInfo.getStudentId());
+		data.put("name", memberInfo.getName());
+
+		throw new BusinessException(ErrorCode.MEMBER_NOT_FOUND, data);
 	}
 
 	@Transactional
 	public TokenDto register(MemberRegisterRequest request, MultipartFile profileImage) {
-		// 임시 토큰 검증
+		// 임시 토큰 유효성 검사
 		if (!authTokenProvider.isValidToken(request.tempToken())) {
-			throw new RuntimeException("유효하지 않은 토큰입니다.");
+			throw new BusinessException(ErrorCode.INVALID_TOKEN);
 		}
 		String studentId = authTokenProvider.getStudentIdFromTempToken(request.tempToken());
 
+		// 학번 일치 확인
 		if (!studentId.equals(String.valueOf(request.studentId()))) {
-			throw new RuntimeException("잘못된 접근입니다.");
+			throw new BusinessException(ErrorCode.INVALID_INPUT);
 		}
+		// 회원 여부 확인
 		if (memberRepository.existsByStudentId(request.studentId())) {
-			throw new RuntimeException("이미 회원가입된 사용자입니다.");
+			throw new BusinessException(ErrorCode.MEMBER_ALREADY_EXIST);
 		}
 
 		// TODO: 이미지 s3 업로드 후 String url 획득
@@ -89,7 +97,7 @@ public class AuthService {
 	public TokenDto reissueToken(String refreshToken) {
 		// refresh token 유효성 확인
 		if (!authTokenProvider.isValidToken(refreshToken)) {
-			throw new RuntimeException("유효하지 않은 토큰입니다.");
+			throw new BusinessException(ErrorCode.INVALID_TOKEN);
 		}
 
 		// memberId 추출, redis에 저장된 refresh token 획득
@@ -100,7 +108,7 @@ public class AuthService {
 
 		// 기존과 동일한 토큰인지 확인
 		if (savedRefreshToken == null || !savedRefreshToken.equals(refreshToken)) {
-			throw new RuntimeException("토큰이 일치하지 않습니다.");
+			throw new BusinessException(ErrorCode.INVALID_INPUT);
 		}
 
 		// 기존 토큰 삭제
@@ -115,9 +123,9 @@ public class AuthService {
 			return sejongPortalLoginService.getMemberAuthInfos(String.valueOf(studentId), password);
 		} catch (RuntimeException e) {
 			if (e.getMessage().equals("SEJONG_AUTH_DATA_FETCH_ERROR")) {
-				throw new RuntimeException("아이디 또는 비밀번호를 잘못 입력하였습니다.");
+				throw new BusinessException(ErrorCode.SJU_AUTH_FAILED);
 			}
-			throw new RuntimeException("일시적인 오류로 로그인을 할 수 없습니다. 잠시 후 다시 이용해주세요.");
+			throw new BusinessException(ErrorCode.SJU_UPSTREAM_ERROR);
 		}
 	}
 

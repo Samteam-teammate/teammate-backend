@@ -1,6 +1,7 @@
 package sejong.alom.teammate.domain.auth.controller;
 
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
@@ -11,8 +12,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import sejong.alom.teammate.domain.auth.dto.MemberLoginRequest;
@@ -29,85 +31,72 @@ public class AuthController {
 	private final AuthService authService;
 
 	@PostMapping("/login")
-	@Operation(summary = "로그인 API")
+	@Operation(summary = "로그인")
 	public ResponseEntity<BaseResponse<?>> login(
-		@Valid @RequestBody MemberLoginRequest request,
-		HttpServletResponse response
+		@Valid @RequestBody MemberLoginRequest request
 	) {
 		// 로그인과 토큰 발행
 		TokenDto dto = authService.login(request);
 
-		// 헤더와 쿠키에 토큰 저장
-		setTokenInResponse(response, dto);
-
 		// 응답 반환
-		return ResponseEntity.ok(BaseResponse.success("로그인 되었습니다."));
+		return ResponseEntity.status(HttpStatus.OK)
+			.header(HttpHeaders.AUTHORIZATION, "Bearer " + dto.accessToken())
+			.header(HttpHeaders.SET_COOKIE, generateCookie(dto.refreshToken(), dto.refreshExpiration()))
+			.body(BaseResponse.success("로그인 되었습니다."));
 	}
 
 	@PostMapping(value = "/signup"/*, consumes = MediaType.MULTIPART_FORM_DATA_VALUE*/)
-	@Operation(summary = "회원가입 API (프로필 사진 제외)")
+	@Operation(summary = "회원가입 (프로필 사진 제외)")
 	public ResponseEntity<BaseResponse<?>> signup(
-		@Valid @RequestBody MemberRegisterRequest request,
-		//@RequestPart("profileImage")MultipartFile profileImage,
-		HttpServletResponse response
+		@Valid @RequestBody MemberRegisterRequest request
+		//@RequestPart("profileImage")MultipartFile profileImage
 	) {
 		// DB에 회원 저장
 		TokenDto dto = authService.register(request, null);
 
-		// 헤더와 쿠키에 토큰 저장
-		setTokenInResponse(response, dto);
-
 		// 응답 반환
-		return ResponseEntity.ok(BaseResponse.success("회원가입 되었습니다."));
+		return ResponseEntity.status(HttpStatus.OK)
+			.header(HttpHeaders.AUTHORIZATION, "Bearer " + dto.accessToken())
+			.header(HttpHeaders.SET_COOKIE, generateCookie(dto.refreshToken(), dto.refreshExpiration()))
+			.body(BaseResponse.success("회원가입 되었습니다."));
 	}
 
 	@PostMapping("/logout")
-	@Operation(summary = "로그아웃 API")
+	@Operation(summary = "로그아웃", security = @SecurityRequirement(name = "bearerAuth"))
 	public ResponseEntity<BaseResponse<?>> logout(
-		@RequestHeader("Authorization") String authHeader,
-		HttpServletResponse response
+		@Parameter(hidden = true) @RequestHeader("Authorization") String authHeader
 	) {
 		// 로그아웃 - 토큰 관리
 		authService.logout(authHeader.substring(7));
 
-		// 쿠키에서 리프레시 토큰 삭제
-		ResponseCookie cookie = ResponseCookie.from("refreshToken", "")
-			.httpOnly(true)
-			.secure(true)
-			.path("/")
-			.maxAge(0)
-			.sameSite("None")
-			.build();
-		response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
-
-		return ResponseEntity.ok(BaseResponse.success("로그아웃 되었습니다."));
+		// 응답 반환
+		return ResponseEntity.status(HttpStatus.OK)
+			.header(HttpHeaders.SET_COOKIE, generateCookie("", 0L))
+			.body(BaseResponse.success("로그아웃 되었습니다."));
 	}
 
 	@PostMapping("/refresh")
-	@Operation(summary = "토큰 재발급 API")
+	@Operation(summary = "토큰 재발급")
 	public ResponseEntity<BaseResponse<?>> refresh(
-		@CookieValue(value = "refreshToken") String refreshToken,
-		HttpServletResponse response
-	) {
+		@Parameter(hidden = true) @CookieValue(value = "refreshToken") String refreshToken) {
 		// 토큰 재발행
 		TokenDto dto = authService.reissueToken(refreshToken);
 
-		// 쿠키와 헤더에 토큰 저장
-		setTokenInResponse(response, dto);
-
 		// 응답 반환
-		return ResponseEntity.ok(BaseResponse.success("토큰이 재발급되었습니다."));
+		return ResponseEntity.status(HttpStatus.OK)
+			.header(HttpHeaders.AUTHORIZATION, "Bearer " + dto.accessToken())
+			.header(HttpHeaders.SET_COOKIE, generateCookie(dto.refreshToken(), dto.refreshExpiration()))
+			.body(BaseResponse.success("토큰이 재발급되었습니다."));
 	}
 
-	private void setTokenInResponse(HttpServletResponse response, TokenDto dto) {
-		ResponseCookie cookie = ResponseCookie.from("refreshToken", dto.refreshToken())
+	private String generateCookie(String refreshToken, Long expiration) {
+		return ResponseCookie.from("refreshToken", refreshToken)
 			.httpOnly(true)
 			.secure(true)
 			.path("/")
-			.maxAge(dto.refreshExpiration())
+			.maxAge(expiration)
 			.sameSite("None")
-			.build();
-		response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
-		response.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + dto.accessToken());
+			.build()
+			.toString();
 	}
 }
