@@ -33,7 +33,7 @@ public class SejongPortalLoginConfig {
 
 	private JdkClientHttpRequestFactory createSecureRequestFactory() {
 		try {
-			SSLContext sslContext = SSLContext.getInstance("TLSv1.3");
+			SSLContext sslContext = SSLContext.getInstance("TLS");
 			sslContext.init(null, new TrustManager[]{insecureTrustManager()}, new SecureRandom());
 
 			CookieManager cookieManager = new CookieManager();
@@ -41,6 +41,7 @@ public class SejongPortalLoginConfig {
 
 			HttpClient httpClient = HttpClient.newBuilder()
 				.sslContext(sslContext)
+				.version(HttpClient.Version.HTTP_1_1)
 				.connectTimeout(Duration.ofSeconds(10))
 				.cookieHandler(cookieManager)
 				.followRedirects(HttpClient.Redirect.ALWAYS)
