@@ -12,7 +12,7 @@ COPY src /app/src
 RUN gradle clean bootJar -x test
 
 # 2단계: Run stage
-FROM eclipse-temurin:21-jre-alpine
+FROM eclipse-temurin:21-jre
 WORKDIR /app
 
 # 시간대 설정 (Seoul)
@@ -30,7 +30,8 @@ ENTRYPOINT ["java", \
             "-Dspring.profiles.active=prd", \
             "-Dhttps.protocols=TLSv1.2", \
             "-Djdk.tls.client.protocols=TLSv1.2", \
-            "-Djdk.tls.disabledAlgorithms=SSLv3, RC4, DES, MD5withRSA, DH keySize < 1024", \
-            "-Djdk.tls.legacyAlgorithms=NULL, RC4, DES, 3DES, MD5, SHA1", \
+            "-Djdk.tls.disabledAlgorithms=", \
+            "-Djdk.tls.legacyAlgorithms=", \
+            "-Djdk.http.auth.tunneling.disabledSchemes=", \
             "-Djavax.net.debug=ssl,handshake", \
             "app.jar"]
