@@ -9,13 +9,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.chuseok22.sejongportallogin.core.SejongMemberInfo;
-import com.chuseok22.sejongportallogin.infrastructure.SejongPortalLoginService;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import sejong.alom.teammate.domain.auth.dto.MemberLoginRequest;
 import sejong.alom.teammate.domain.auth.dto.MemberRegisterRequest;
+import sejong.alom.teammate.domain.auth.dto.SejongMemberDto;
 import sejong.alom.teammate.domain.auth.dto.TokenDto;
 import sejong.alom.teammate.domain.auth.provider.AuthTokenProvider;
 import sejong.alom.teammate.domain.member.entity.Member;
@@ -38,7 +36,7 @@ public class AuthService {
 	@Transactional
 	public TokenDto login(MemberLoginRequest request) {
 		// 세종대 로그인
-		SejongMemberInfo memberInfo = trySejongPortalLogin(request.studentId(), request.password());
+		SejongMemberDto memberInfo = sejongPortalLoginService.getMemberAuthInfos(String.valueOf(request.studentId()), request.password());
 
 		// 회원 여부 확인 -> 회원이면 로그인 처리
 		if (memberRepository.existsByStudentId(request.studentId())) {
@@ -49,8 +47,8 @@ public class AuthService {
 		String tempToken = issueTempToken(request.studentId());
 		Map<String, Object> data = new HashMap<>();
 		data.put("tempToken", tempToken);
-		data.put("studentId", memberInfo.getStudentId());
-		data.put("name", memberInfo.getName());
+		data.put("studentId", memberInfo.studentId());
+		data.put("name", memberInfo.name());
 
 		throw new BusinessException(ErrorCode.MEMBER_NOT_FOUND, data);
 	}
@@ -116,17 +114,6 @@ public class AuthService {
 
 		// 새로운 토큰 발행, redis에 refresh 토큰 저장
 		return issueToken(memberId);
-	}
-
-	private SejongMemberInfo trySejongPortalLogin(Long studentId, String password) {
-		try {
-			return sejongPortalLoginService.getMemberAuthInfos(String.valueOf(studentId), password);
-		} catch (RuntimeException e) {
-			if (e.getMessage().equals("SEJONG_AUTH_DATA_FETCH_ERROR")) {
-				throw new BusinessException(ErrorCode.SJU_AUTH_FAILED);
-			}
-			throw new BusinessException(ErrorCode.SJU_UPSTREAM_ERROR);
-		}
 	}
 
 	private TokenDto issueToken(Long id) {
