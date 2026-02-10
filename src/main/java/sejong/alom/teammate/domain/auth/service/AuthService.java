@@ -29,14 +29,22 @@ import sejong.alom.teammate.global.exception.docs.ErrorCode;
 public class AuthService {
 	private final MemberRepository memberRepository;
 	private final ProfileRepository profileRepository;
-	private final SejongPortalLoginService sejongPortalLoginService;
+	//private final SejongPortalLoginService sejongPortalLoginService;
 	private final AuthTokenProvider authTokenProvider;
 	private final RedisTemplate<String, String> redisTemplate;
 
 	@Transactional
 	public TokenDto login(MemberLoginRequest request) {
 		// 세종대 로그인
-		SejongMemberDto memberInfo = sejongPortalLoginService.getMemberAuthInfos(String.valueOf(request.studentId()), request.password());
+		//SejongMemberDto memberInfo = sejongPortalLoginService.getMemberAuthInfos(String.valueOf(request.studentId()), request.password());
+		SejongMemberDto memberInfo = SejongMemberDto.builder()
+			.studentId(String.valueOf(request.studentId()))
+			.name("student")
+			.grade("4")
+			.major("학과")
+			.status("상태")
+			.completedSemester("재학")
+			.build();
 
 		// 회원 여부 확인 -> 회원이면 로그인 처리
 		if (memberRepository.existsByStudentId(request.studentId())) {

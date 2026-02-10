@@ -25,13 +25,4 @@ COPY --from=build /app/build/libs/*.jar app.jar
 EXPOSE 8080
 
 # 컨테이너 실행 명령
-ENTRYPOINT ["java", \
-            "-jar", \
-            "-Dspring.profiles.active=prd", \
-            "-Dhttps.protocols=TLSv1.2", \
-            "-Djdk.tls.client.protocols=TLSv1.2", \
-            "-Djdk.tls.disabledAlgorithms=", \
-            "-Djdk.tls.legacyAlgorithms=", \
-            "-Djdk.http.auth.tunneling.disabledSchemes=", \
-            "-Djavax.net.debug=ssl,handshake", \
-            "app.jar"]
+ENTRYPOINT ["java", "-jar", "-Dspring.profiles.active=prd", "app.jar"]
