@@ -1,24 +1,24 @@
 package sejong.alom.teammate.global.config;
 
-import java.net.CookieManager;
-import java.net.CookiePolicy;
-import java.net.http.HttpClient;
-import java.security.SecureRandom;
-import java.security.cert.X509Certificate;
-import java.time.Duration;
-
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 
+import org.apache.hc.client5.http.cookie.BasicCookieStore;
+import org.apache.hc.client5.http.impl.DefaultRedirectStrategy;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
+import org.apache.hc.client5.http.ssl.NoopHostnameVerifier;
+import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
+import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactoryBuilder;
+import org.apache.hc.core5.http.ssl.TLS;
+import org.apache.hc.core5.ssl.SSLContexts;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.client.JdkClientHttpRequestFactory;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestClient;
 
 import lombok.extern.slf4j.Slf4j;
-import sejong.alom.teammate.global.exception.BusinessException;
-import sejong.alom.teammate.global.exception.docs.ErrorCode;
 
 @Slf4j
 @Configuration
@@ -27,41 +27,45 @@ public class SejongPortalLoginConfig {
 	public RestClient sejongPortalRestClient() {
 		return RestClient.builder()
 			.baseUrl("https://portal.sejong.ac.kr")
-			.requestFactory(createSecureRequestFactory())
+			.requestFactory(createApacheRequestFactory())
 			.build();
 	}
 
-	private JdkClientHttpRequestFactory createSecureRequestFactory() {
+	private HttpComponentsClientHttpRequestFactory createApacheRequestFactory() {
 		try {
-			SSLContext sslContext = SSLContext.getInstance("TLSv1.2");
-			sslContext.init(null, new TrustManager[]{insecureTrustManager()}, new SecureRandom());
-
-			HttpClient httpClient = HttpClient.newBuilder()
-				.sslContext(sslContext)
-				.version(HttpClient.Version.HTTP_1_1)
-				.connectTimeout(Duration.ofSeconds(15))
-				.cookieHandler(new CookieManager(null, CookiePolicy.ACCEPT_ALL))
+			// 1. SSL 설정: TLS 1.2 허용 및 모든 인증서 신뢰
+			SSLContext sslContext = SSLContexts.custom()
+				.loadTrustMaterial(null, (chain, authType) -> true)
 				.build();
 
-			return new JdkClientHttpRequestFactory(httpClient);
+			SSLConnectionSocketFactory sslSocketFactory = SSLConnectionSocketFactoryBuilder.create()
+				.setSslContext(sslContext)
+				// 중요: 구형 서버를 위해 호스트네임 검증기 완화
+				.setHostnameVerifier(NoopHostnameVerifier.INSTANCE)
+				// 중요: 서버가 요구할 수 있는 구형 프로토콜 명시
+				.setTlsVersions(TLS.V_1_2)
+				.build();
+
+			// 2. 커넥션 매니저 및 쿠키 저장소 설정
+			PoolingHttpClientConnectionManager connectionManager = PoolingHttpClientConnectionManagerBuilder.create()
+				.setSSLSocketFactory(sslSocketFactory)
+				.build();
+
+			BasicCookieStore cookieStore = new BasicCookieStore();
+
+			// 3. CloseableHttpClient 생성
+			CloseableHttpClient httpClient = HttpClients.custom()
+				.setConnectionManager(connectionManager)
+				.setDefaultCookieStore(cookieStore)
+				// 리다이렉트 자동 처리
+				.setRedirectStrategy(DefaultRedirectStrategy.INSTANCE)
+				// 기본 User-Agent 설정 (보안 장비 우회)
+				.setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/121.0.0.0")
+				.build();
+
+			return new HttpComponentsClientHttpRequestFactory(httpClient);
 		} catch (Exception e) {
-			log.error("세종대 포털 통신을 위한 HTTP 클라이언트 초기화 실패", e);
-			throw new BusinessException(ErrorCode.SJU_UPSTREAM_ERROR);
+			throw new RuntimeException("Apache HttpClient 5 초기화 실패", e);
 		}
-	}
-
-	private X509TrustManager insecureTrustManager() {
-		return new X509TrustManager() {
-			@Override
-			public void checkClientTrusted(X509Certificate[] x509Certificates, String s) {}
-
-			@Override
-			public void checkServerTrusted(X509Certificate[] x509Certificates, String s) {}
-
-			@Override
-			public X509Certificate[] getAcceptedIssuers() {
-				return new X509Certificate[0];
-			}
-		};
 	}
 }

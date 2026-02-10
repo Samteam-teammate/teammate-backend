@@ -45,8 +45,16 @@ dependencies {
     // swagger
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.5'
 
-    // html parser
-    implementation 'org.jsoup:jsoup:1.22.1'
+    // Http
+    implementation 'com.squareup.okhttp3:okhttp:4.12.0'
+    implementation 'org.jsoup:jsoup:1.15.3'
+
+    // JavaNetCookieJar
+    implementation 'com.squareup.okhttp3:okhttp-urlconnection:4.9.3'
+    // HttpLoggingInterceptor
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.9.3'
+
+    implementation 'org.apache.httpcomponents.client5:httpclient5'
 
     // jwt
     implementation("io.jsonwebtoken:jjwt-api:0.12.6")
