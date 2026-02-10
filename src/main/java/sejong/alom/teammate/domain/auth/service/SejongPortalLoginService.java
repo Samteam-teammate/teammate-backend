@@ -51,8 +51,9 @@ public class SejongPortalLoginService {
 		sejongPortalRestClient.post()
 			.uri("/jsp/login/login_action.jsp")
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.body(formData)
+			.header("Host", "portal.sejong.ac.kr")
 			.header("Referer", "https://portal.sejong.ac.kr")
+			.body(formData)
 			.retrieve()
 			.toBodilessEntity();
 	}
