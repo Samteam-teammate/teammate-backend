@@ -51,6 +51,8 @@ public class SejongPortalLoginService {
 		sejongPortalRestClient.post()
 			.uri("/jsp/login/login_action.jsp")
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
+			.header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8")
 			.header("Host", "portal.sejong.ac.kr")
 			.header("Referer", "https://portal.sejong.ac.kr")
 			.body(formData)

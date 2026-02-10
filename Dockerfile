@@ -26,9 +26,11 @@ EXPOSE 8080
 
 # 컨테이너 실행 명령
 ENTRYPOINT ["java", \
+            "-jar", \
             "-Dspring.profiles.active=prd", \
             "-Dhttps.protocols=TLSv1.2", \
-            "-Djdk.tls.disabledAlgorithms=", \
-            "-Djdk.http.auth.tunneling.disabledSchemes=", \
+            "-Djdk.tls.client.protocols=TLSv1.2", \
+            "-Djdk.tls.disabledAlgorithms=SSLv3, RC4, DES, MD5withRSA, DH keySize < 1024", \
+            "-Djdk.tls.legacyAlgorithms=NULL, RC4, DES, 3DES, MD5, SHA1", \
             "-Djavax.net.debug=ssl,handshake", \
-            "-jar", "app.jar"]
+            "app.jar"]

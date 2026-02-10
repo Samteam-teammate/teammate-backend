@@ -36,15 +36,11 @@ public class SejongPortalLoginConfig {
 			SSLContext sslContext = SSLContext.getInstance("TLSv1.2");
 			sslContext.init(null, new TrustManager[]{insecureTrustManager()}, new SecureRandom());
 
-			CookieManager cookieManager = new CookieManager();
-			cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
-
 			HttpClient httpClient = HttpClient.newBuilder()
 				.sslContext(sslContext)
 				.version(HttpClient.Version.HTTP_1_1)
-				.connectTimeout(Duration.ofSeconds(10))
-				.cookieHandler(cookieManager)
-				.followRedirects(HttpClient.Redirect.ALWAYS)
+				.connectTimeout(Duration.ofSeconds(15))
+				.cookieHandler(new CookieManager(null, CookiePolicy.ACCEPT_ALL))
 				.build();
 
 			return new JdkClientHttpRequestFactory(httpClient);
