@@ -1,7 +1,14 @@
 package sejong.alom.teammate.domain.member.entity;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -14,6 +21,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import sejong.alom.teammate.global.enums.Part;
+import sejong.alom.teammate.global.enums.Skill;
 import sejong.alom.teammate.global.util.BaseTimeEntity;
 
 @Entity
@@ -46,12 +55,33 @@ public class Profile extends BaseTimeEntity {
 	private Boolean isVisible;
 	private String profileImage;
 
-	public void update(String nickname, String bio, String portfolioUrl, Boolean isOpenToWork, Boolean isVisible, String profileImage) {
-		this.nickname = nickname;
-		this.bio = bio;
-		this.portfolioUrl = portfolioUrl;
-		this.isOpenToWork = isOpenToWork;
-		this.isVisible = isVisible;
-		this.profileImage = profileImage;
+	@ElementCollection(targetClass = Part.class)
+	@CollectionTable(name = "profile_parts", joinColumns = @JoinColumn(name = "profile_id"))
+	@Enumerated(EnumType.STRING)
+	@Column(name = "part_name")
+	private List<Part> profileParts = new ArrayList<>();
+
+	@ElementCollection(targetClass = Skill.class)
+	@CollectionTable(name = "profile_skills", joinColumns = @JoinColumn(name = "profile_id"))
+	@Enumerated(EnumType.STRING)
+	@Column(name = "skill_name")
+	private List<Skill> profileSkills = new ArrayList<>();
+
+	public void update(String nickname, String bio, String portfolioUrl, Boolean isOpenToWork,
+		Boolean isVisible, String profileImage, List<Part> parts, List<Skill> skills) {
+		if (nickname != null) this.nickname = nickname;
+		if (bio != null) this.bio = bio;
+		if (portfolioUrl != null) this.portfolioUrl = portfolioUrl;
+		if (isOpenToWork != null) this.isOpenToWork = isOpenToWork;
+		if (isVisible != null) this.isVisible = isVisible;
+		if (profileImage != null) this.profileImage = profileImage;
+		if (parts != null) {
+			this.profileParts.clear();
+			this.profileParts.addAll(parts);
+		}
+		if (skills != null) {
+			this.profileSkills.clear();
+			this.profileSkills.addAll(skills);
+		}
 	}
 }

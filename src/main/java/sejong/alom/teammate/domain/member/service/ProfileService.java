@@ -53,12 +53,16 @@ public class ProfileService {
 			request.portfolioUrl(),
 			request.isOpenToWork(),
 			request.isVisible(),
-			request.profileImage()
+			request.profileImage(),
+			request.parts(),
+			request.skills()
 		);
 	}
 
 	@Transactional(readOnly = true)
 	public Page<ProfileListResponse> getProfileList(ProfileListFetchRequest request, Pageable pageable) {
-		return null;
+		Page<Profile> profilePage = profileRepository.searchProfiles(request, pageable);
+
+		return profilePage.map(ProfileListResponse::from);
 	}
 }

@@ -1,7 +1,11 @@
 package sejong.alom.teammate.domain.member.dto;
 
+import java.util.List;
+
 import lombok.Builder;
 import sejong.alom.teammate.domain.member.entity.Profile;
+import sejong.alom.teammate.global.enums.Part;
+import sejong.alom.teammate.global.enums.Skill;
 
 @Builder
 public record ProfileResponse(
@@ -10,7 +14,9 @@ public record ProfileResponse(
 	String portfolioUrl,
 	Boolean isOpenToWork,
 	Boolean isVisible,
-	String profileImage
+	String profileImage,
+	List<Part> parts,
+	List<Skill> skills
 ) {
 	public static ProfileResponse from(Profile profile) {
 		return ProfileResponse.builder()
@@ -20,6 +26,8 @@ public record ProfileResponse(
 			.isOpenToWork(profile.getIsOpenToWork())
 			.isVisible(profile.getIsVisible())
 			.profileImage(profile.getProfileImage())
+			.parts(profile.getProfileParts())
+			.skills(profile.getProfileSkills())
 			.build();
 	}
 }

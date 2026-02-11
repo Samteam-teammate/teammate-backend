@@ -1,5 +1,6 @@
 package sejong.alom.teammate.domain.member.controller;
 
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import sejong.alom.teammate.domain.member.dto.ProfileListFetchRequest;
 import sejong.alom.teammate.domain.member.dto.ProfileListResponse;
@@ -57,7 +59,7 @@ public class ProfileController {
 	@GetMapping("/profiles")
 	@Operation(summary = "프로필 목록 조회")
 	public ResponseEntity<BaseResponse<Page<ProfileListResponse>>> getProfileList(
-		ProfileListFetchRequest request,
+		@ParameterObject @Valid ProfileListFetchRequest request,
 		@RequestParam(value = "page", required = false, defaultValue = "0") int page,
 		@RequestParam(value = "size", required = false, defaultValue = "20") int size
 		// @AuthenticationPrincipal User principal // TODO: Scrap 할 때 추가
