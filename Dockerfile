@@ -1,18 +1,18 @@
 # 1단계: 빌드
-FROM gradle:9.2-jdk21 AS build
+FROM gradle:9.2.1-jdk17 AS build
 
 WORKDIR /app
 
 # Gradle 설정 파일 복사
 COPY build.gradle settings.gradle /app/
-RUN gradle build -x test --parallel > /dev/null 2>&1 || true
+RUN gradle dependencies --no-daemon || true
 
 # 소스 코드 복사 및 빌드
 COPY src /app/src
 RUN gradle clean bootJar -x test
 
 # 2단계: Run stage
-FROM eclipse-temurin:21-jre
+FROM eclipse-temurin:17-jre
 WORKDIR /app
 
 # 시간대 설정 (Seoul)
