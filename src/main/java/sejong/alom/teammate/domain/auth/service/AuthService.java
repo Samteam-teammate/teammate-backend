@@ -46,19 +46,21 @@ public class AuthService {
 			.completedSemester("재학")
 			.build();
 
-		// 회원 여부 확인 -> 회원이면 로그인 처리
-		if (memberRepository.existsByStudentId(request.studentId())) {
-			return issueToken(request.studentId());
-		}
+		// 회원 여부 확인
+		Member member = memberRepository.findByStudentId(request.studentId())
+			.orElseThrow(() -> {
+				// 회원이 아니면 학번으로 임시 토큰 발행 후 예외 처리 -> 임시 토큰은 사용자 정보와 함께 ResponseBody로 전달
+				String tempToken = issueTempToken(request.studentId());
+				Map<String, Object> data = new HashMap<>();
+				data.put("tempToken", tempToken);
+				data.put("studentId", memberInfo.studentId());
+				data.put("name", memberInfo.name());
 
-		// 그렇지 않으면 임시 토큰 발행 후 예외 처리 -> 임시 토큰은 사용자 정보와 함께 ResponseBody로 전달
-		String tempToken = issueTempToken(request.studentId());
-		Map<String, Object> data = new HashMap<>();
-		data.put("tempToken", tempToken);
-		data.put("studentId", memberInfo.studentId());
-		data.put("name", memberInfo.name());
+				return new BusinessException(ErrorCode.MEMBER_NOT_FOUND, data);
+			});
 
-		throw new BusinessException(ErrorCode.MEMBER_NOT_FOUND, data);
+		// 회원이면 로그인 처리
+		return issueToken(member.getId());
 	}
 
 	@Transactional
@@ -69,7 +71,7 @@ public class AuthService {
 		}
 		String studentId = authTokenProvider.getStudentIdFromTempToken(request.tempToken());
 
-		// 학번 일치 확인
+		// 임시 토큰의 학번 일치 확인
 		if (!studentId.equals(String.valueOf(request.studentId()))) {
 			throw new BusinessException(ErrorCode.INVALID_INPUT);
 		}
@@ -86,7 +88,7 @@ public class AuthService {
 		profileRepository.save(request.toProfile(member, image));
 
 		// 회원가입 절차 완료 시 토큰 발행
-		return issueToken(request.studentId());
+		return issueToken(member.getId());
 	}
 
 	@Transactional
@@ -109,8 +111,6 @@ public class AuthService {
 		// memberId 추출, redis에 저장된 refresh token 획득
 		long memberId = Long.parseLong(authTokenProvider.getSubject(refreshToken));
 		String savedRefreshToken = redisTemplate.opsForValue().get("auth:refresh:" + memberId);
-		log.info("saved refresh token: " + savedRefreshToken);
-		log.info("request refresh token: " + refreshToken);
 
 		// 기존과 동일한 토큰인지 확인
 		if (savedRefreshToken == null || !savedRefreshToken.equals(refreshToken)) {
@@ -135,14 +135,10 @@ public class AuthService {
 
 		// redis에 refresh token 저장
 		try {
-			log.info("Redis 저장 시도 - Key: {}, Value: {}", "auth:refresh:" + id, refreshToken);
 			redisTemplate.opsForValue()
 				.set("auth:refresh:" + id, refreshToken, expiration * 1000L, TimeUnit.MILLISECONDS);
-
-			String saved = redisTemplate.opsForValue().get("auth:refresh:" + id);
-			log.info("저장 직후 확인: {}", saved);
 		} catch (Exception e) {
-			log.error("redis 저장 에러:" + e);
+			throw new BusinessException(ErrorCode.REDIS_ERROR);
 		}
 
 		return TokenDto.of(accessToken, refreshToken, expiration);

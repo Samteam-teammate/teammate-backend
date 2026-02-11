@@ -8,6 +8,18 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum ErrorCode {
+	/*
+	E 공통
+	J Jwt
+	A Auth
+	M Member
+	P Profile
+	T Team
+	S Scrap
+	U Upstream
+	D db, redis
+	 */
+
 	// 400 Bad Request
 	INVALID_INPUT(HttpStatus.BAD_REQUEST, "E400", "입력값이 올바르지 않습니다."),
 
@@ -32,7 +44,8 @@ public enum ErrorCode {
 	SJU_UPSTREAM_ERROR(HttpStatus.BAD_GATEWAY, "U001", "세종대 포털 연결에 실패했습니다."),
 
 	// 500 Internal Server Error
-	SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "E500", "서버 작업 중 예상치 못한 오류가 발생했습니다.")
+	SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "E500", "서버 작업 중 예상치 못한 오류가 발생했습니다."),
+	REDIS_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "D001", "레디스 작업 중 예상치 못한 오류가 발생했습니다.")
 	;
 
 	private final HttpStatus status;

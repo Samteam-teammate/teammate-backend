@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -12,20 +13,23 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import lombok.RequiredArgsConstructor;
+import sejong.alom.teammate.domain.auth.provider.AuthTokenProvider;
+import sejong.alom.teammate.global.filter.JwtAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-	// private final AuthTokenProvider authTokenProvider;
-	// private final RedisTemplate<String, String> redisTemplate;
+	private final AuthTokenProvider authTokenProvider;
+	private final RedisTemplate<String, String> redisTemplate;
 
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) {
@@ -39,8 +43,8 @@ public class SecurityConfig {
 			.sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 			//.exceptionHandling(eh -> eh.authenticationEntryPoint())
 			.authorizeHttpRequests(auth -> auth
-				.anyRequest().permitAll());
-			//.addFilterBefore(new JwtAuthenticationFilter(authTokenProvider, redisTemplate), UsernamePasswordAuthenticationFilter.class);
+				.anyRequest().permitAll())
+			.addFilterBefore(new JwtAuthenticationFilter(authTokenProvider, redisTemplate), UsernamePasswordAuthenticationFilter.class);
 
 		return http.build();
 	}

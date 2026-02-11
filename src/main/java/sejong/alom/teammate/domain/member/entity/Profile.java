@@ -45,4 +45,13 @@ public class Profile extends BaseTimeEntity {
 	private Boolean isOpenToWork;
 	private Boolean isVisible;
 	private String profileImage;
+
+	public void update(String nickname, String bio, String portfolioUrl, Boolean isOpenToWork, Boolean isVisible, String profileImage) {
+		this.nickname = nickname;
+		this.bio = bio;
+		this.portfolioUrl = portfolioUrl;
+		this.isOpenToWork = isOpenToWork;
+		this.isVisible = isVisible;
+		this.profileImage = profileImage;
+	}
 }
