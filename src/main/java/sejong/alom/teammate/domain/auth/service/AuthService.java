@@ -138,6 +138,7 @@ public class AuthService {
 			redisTemplate.opsForValue()
 				.set("auth:refresh:" + id, refreshToken, expiration * 1000L, TimeUnit.MILLISECONDS);
 		} catch (Exception e) {
+			log.error("Redis error: " + e.getMessage());
 			throw new BusinessException(ErrorCode.REDIS_ERROR);
 		}
 
