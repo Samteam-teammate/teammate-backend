@@ -1,10 +1,14 @@
 package sejong.alom.teammate.domain.member.service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import sejong.alom.teammate.domain.member.dto.ProfileListFetchRequest;
+import sejong.alom.teammate.domain.member.dto.ProfileListResponse;
 import sejong.alom.teammate.domain.member.dto.ProfileResponse;
 import sejong.alom.teammate.domain.member.dto.ProfileUpdateRequest;
 import sejong.alom.teammate.domain.member.entity.Member;
@@ -51,5 +55,10 @@ public class ProfileService {
 			request.isVisible(),
 			request.profileImage()
 		);
+	}
+
+	@Transactional(readOnly = true)
+	public Page<ProfileListResponse> getProfileList(ProfileListFetchRequest request, Pageable pageable) {
+		return null;
 	}
 }
