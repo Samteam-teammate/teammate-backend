@@ -2,6 +2,8 @@ package sejong.alom.teammate.domain.team.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -16,7 +18,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import sejong.alom.teammate.domain.member.entity.Member;
-import sejong.alom.teammate.domain.meta.entity.Part;
+import sejong.alom.teammate.global.enums.Part;
 import sejong.alom.teammate.global.enums.TeamMemberRole;
 import sejong.alom.teammate.global.util.BaseTimeEntity;
 
@@ -49,7 +51,6 @@ public class TeamMember extends BaseTimeEntity {
 
 	private TeamMemberRole role;
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "part_id")
+	@Enumerated(EnumType.STRING)
 	private Part part;
 }
