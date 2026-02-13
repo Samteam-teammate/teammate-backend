@@ -40,10 +40,10 @@ public class AuthTokenProvider {
 		Date expiration = new Date(issueAt.getTime() + 1000L * expireSeconds);
 
 		return Jwts.builder()
+			.claims(claims)
 			.subject(subject)
 			.issuedAt(issueAt)
 			.expiration(expiration)
-			.claims(claims)
 			.signWith(secretKey())
 			.compact();
 	}
