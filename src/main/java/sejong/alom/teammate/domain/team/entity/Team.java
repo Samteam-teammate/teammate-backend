@@ -37,14 +37,19 @@ public class Team extends BaseTimeEntity {
 	@Column(nullable = false)
 	private String name;
 
+	@Column(nullable = false)
 	private String bio;
 
 	@Column(nullable = false)
 	private TeamCategory category;
+
+	private String description;
 
 	private Integer maxMemberCount;
 
 	private Integer currentMemberCount;
 
 	private String teamImage;
+
+	private Boolean isPublic;
 }

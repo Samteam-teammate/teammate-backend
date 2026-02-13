@@ -29,7 +29,7 @@ import sejong.alom.teammate.global.util.BaseResponse;
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
-@Tag(name = "Member API", description = "사용자 정보 관련 API 엔드포인트")
+@Tag(name = "Profile API", description = "프로필 관련 API 엔드포인트")
 public class ProfileController {
 	private final ProfileService profileService;
 
