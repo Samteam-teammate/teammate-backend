@@ -1,5 +1,7 @@
 package sejong.alom.teammate.domain.team.controller;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -42,8 +44,11 @@ public class TeamController {
 
 	@GetMapping
 	@Operation(summary = "내 팀 목록 조회")
-	public ResponseEntity<BaseResponse<TeamListResponse>> getMyTeamList(@AuthenticationPrincipal User principal) {
-		return null;
+	public ResponseEntity<BaseResponse<List<TeamListResponse>>> getMyTeamList(@AuthenticationPrincipal User principal) {
+		List<TeamListResponse> teams = teamService.getMyTeamList(Long.parseLong(principal.getUsername()));
+
+		return ResponseEntity.status(HttpStatus.OK)
+			.body(BaseResponse.success("내 팀이 조회되었습니다.", teams));
 	}
 
 	@GetMapping("/{teamId}")
