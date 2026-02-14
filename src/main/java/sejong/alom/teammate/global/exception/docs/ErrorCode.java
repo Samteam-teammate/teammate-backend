@@ -32,6 +32,7 @@ public enum ErrorCode {
 	FORBIDDEN_ERROR(HttpStatus.FORBIDDEN, "E403", "접근 권한이 없습니다."),
 
 	// 404 Not Found
+	NOT_FOUND(HttpStatus.NOT_FOUND, "E404", "정보가 존재하지 않습니다."),
 	MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "M001", "사용자가 존재하지 않습니다."),
 	PROFILE_NOT_FOUND(HttpStatus.NOT_FOUND, "P001", "프로필이 존재하지 않습니다."),
 	TEAM_NOT_FOUND(HttpStatus.NOT_FOUND, "T001", "팀이 존재하지 않습니다."),
