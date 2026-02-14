@@ -17,6 +17,7 @@ import sejong.alom.teammate.domain.team.dto.TeamCreateRequest;
 import sejong.alom.teammate.domain.team.dto.TeamDetailResponse;
 import sejong.alom.teammate.domain.team.dto.TeamListResponse;
 import sejong.alom.teammate.domain.team.dto.TeamMemberResponse;
+import sejong.alom.teammate.domain.team.dto.TeamUpdateRequest;
 import sejong.alom.teammate.domain.team.entity.Team;
 import sejong.alom.teammate.domain.team.entity.TeamMember;
 import sejong.alom.teammate.domain.team.repository.TeamMemberRepository;
@@ -88,5 +89,20 @@ public class TeamService {
 			.toList();
 
 		return TeamDetailResponse.of(team, teamMemberResponses);
+	}
+
+	public void updateTeamInfo(Long teamId, TeamUpdateRequest request) {
+		Team team = teamRepository.findById(teamId)
+			.orElseThrow(() -> new BusinessException(ErrorCode.TEAM_NOT_FOUND));
+
+		team.update(
+			request.name(),
+			request.bio(),
+			request.category(),
+			request.description(),
+			request.maxMemberCount(),
+			request.teamImage(),
+			request.isPublic()
+		);
 	}
 }
