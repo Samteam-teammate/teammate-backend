@@ -19,7 +19,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import sejong.alom.teammate.domain.team.dto.TeamCreateRequest;
 import sejong.alom.teammate.domain.team.dto.TeamListResponse;
-import sejong.alom.teammate.domain.team.dto.TeamResponse;
+import sejong.alom.teammate.domain.team.dto.TeamDetailResponse;
 import sejong.alom.teammate.domain.team.service.TeamService;
 import sejong.alom.teammate.global.util.BaseResponse;
 
@@ -53,8 +53,11 @@ public class TeamController {
 
 	@GetMapping("/{teamId}")
 	@Operation(summary = "팀 상세 정보 조회")
-	public ResponseEntity<BaseResponse<TeamResponse>> getTeam(@PathVariable String teamId) {
-		return null;
+	public ResponseEntity<BaseResponse<TeamDetailResponse>> getTeam(@PathVariable Long teamId) {
+		TeamDetailResponse response = teamService.getTeamInfo(teamId);
+
+		return ResponseEntity.status(HttpStatus.OK)
+			.body(BaseResponse.success("팀이 조회되었습니다.", response));
 	}
 
 	@PatchMapping("/{teamId}")
