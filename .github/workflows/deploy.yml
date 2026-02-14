@@ -137,6 +137,9 @@ jobs:
             
             sudo docker network create teammate-network 2>/dev/null || true
             
+            sudo mkdir -p /app/postgres-data
+            sudo mkdir -p /app/redis-data
+            
             docker stop teammate-db 2>/dev/null || true && \
             docker rm teammate-db 2>/dev/null || true && \
             docker run --restart always \
@@ -146,6 +149,7 @@ jobs:
               -e POSTGRES_USER=${{ secrets.DB_USERNAME }} \
               -e POSTGRES_PASSWORD=${{ secrets.DB_PASSWORD }} \
               -e POSTGRES_DB=${{ secrets.DB_NAME }} \
+              -v /app/postgres-data:/var/lib/postgresql/data \
               postgres:15-alpine
             
             docker stop teammate-redis 2>/dev/null || true && \
@@ -154,6 +158,7 @@ jobs:
               -d --name teammate-redis \
               -p 6379:6379 \
               --network teammate-network \
+              -v /app/redis-data:/data \
               redis:7.2-alpine \
               --appendonly yes
             
