@@ -20,7 +20,7 @@ import lombok.RequiredArgsConstructor;
 import sejong.alom.teammate.domain.team.dto.TeamCreateRequest;
 import sejong.alom.teammate.domain.team.dto.TeamListResponse;
 import sejong.alom.teammate.domain.team.dto.TeamDetailResponse;
-import sejong.alom.teammate.domain.team.dto.TeamMemberPartUpdateRequest;
+import sejong.alom.teammate.domain.team.dto.TeamMemberUpdateRequest;
 import sejong.alom.teammate.domain.team.dto.TeamUpdateRequest;
 import sejong.alom.teammate.domain.team.service.TeamService;
 import sejong.alom.teammate.global.util.BaseResponse;
@@ -74,12 +74,25 @@ public class TeamController {
 			.body(BaseResponse.success("팀 정보가 수정되었습니다."));
 	}
 
+	@PostMapping("/{teamId}/{memberId}")
+	@Operation(summary = "(임시) member id로 팀원 추가")
+	public ResponseEntity<BaseResponse<?>> addTeamMember(
+		@PathVariable Long teamId,
+		@PathVariable Long memberId,
+		@RequestBody TeamMemberUpdateRequest request
+	) {
+		teamService.addTeamMember(teamId, memberId, request);
+
+		return ResponseEntity.status(HttpStatus.OK)
+			.body(BaseResponse.success("팀원이 추가되었습니다."));
+	}
+
 	@PatchMapping("/{teamId}/{memberId}")
 	@Operation(summary = "팀원 역할 할당")
 	public ResponseEntity<BaseResponse<?>> updateTeamMemberPart(
 		@PathVariable Long teamId,
 		@PathVariable Long memberId,
-		@RequestBody TeamMemberPartUpdateRequest request
+		@RequestBody TeamMemberUpdateRequest request
 	) {
 		teamService.updateTeamMemberRole(teamId, memberId, request);
 

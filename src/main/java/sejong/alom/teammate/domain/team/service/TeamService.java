@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +17,7 @@ import sejong.alom.teammate.domain.member.repository.ProfileRepository;
 import sejong.alom.teammate.domain.team.dto.TeamCreateRequest;
 import sejong.alom.teammate.domain.team.dto.TeamDetailResponse;
 import sejong.alom.teammate.domain.team.dto.TeamListResponse;
-import sejong.alom.teammate.domain.team.dto.TeamMemberPartUpdateRequest;
+import sejong.alom.teammate.domain.team.dto.TeamMemberUpdateRequest;
 import sejong.alom.teammate.domain.team.dto.TeamMemberResponse;
 import sejong.alom.teammate.domain.team.dto.TeamUpdateRequest;
 import sejong.alom.teammate.domain.team.entity.Team;
@@ -36,6 +37,7 @@ public class TeamService {
 	private final TeamMemberRepository teamMemberRepository;
 	private final ProfileRepository profileRepository;
 
+	@Transactional
 	public void generateTeam(Long memberId, TeamCreateRequest request) {
 		// 멤버 조회
 		Member member = memberRepository.findById(memberId)
@@ -52,6 +54,7 @@ public class TeamService {
 		);
 	}
 
+	@Transactional(readOnly = true)
 	public List<TeamListResponse> getMyTeamList(Long memberId) {
 		// 멤버 조회
 		Member member = memberRepository.findById(memberId)
@@ -65,6 +68,7 @@ public class TeamService {
 			.toList();
 	}
 
+	@Transactional(readOnly = true)
 	public TeamDetailResponse getTeamInfo(Long teamId) {
 		// 팀 조회
 		Team team = teamRepository.findById(teamId)
@@ -92,6 +96,7 @@ public class TeamService {
 		return TeamDetailResponse.of(team, teamMemberResponses);
 	}
 
+	@Transactional
 	public void updateTeamInfo(Long teamId, TeamUpdateRequest request) {
 		Team team = teamRepository.findById(teamId)
 			.orElseThrow(() -> new BusinessException(ErrorCode.TEAM_NOT_FOUND));
@@ -107,7 +112,26 @@ public class TeamService {
 		);
 	}
 
-	public void updateTeamMemberRole(Long teamId, Long memberId, TeamMemberPartUpdateRequest request) {
+	@Transactional
+	public void addTeamMember(Long teamId, Long memberId, TeamMemberUpdateRequest request) {
+		Team team = teamRepository.findById(teamId)
+			.orElseThrow(() -> new BusinessException(ErrorCode.TEAM_NOT_FOUND));
+
+		Member member = memberRepository.findById(memberId)
+			.orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND));
+
+		teamMemberRepository.save(
+			TeamMember.builder()
+				.team(team)
+				.member(member)
+				.role(TeamMemberRole.MEMBER)
+				.part(request.part())
+				.build()
+		);
+	}
+
+	@Transactional
+	public void updateTeamMemberRole(Long teamId, Long memberId, TeamMemberUpdateRequest request) {
 		Team team = teamRepository.findById(teamId)
 			.orElseThrow(() -> new BusinessException(ErrorCode.TEAM_NOT_FOUND));
 
