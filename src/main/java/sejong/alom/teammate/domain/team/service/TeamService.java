@@ -60,7 +60,7 @@ public class TeamService {
 		Member member = memberRepository.findById(memberId)
 			.orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND));
 
-		// 팀원인 데이터 찾아서 팀 추출
+		// 팀원으로 속해있는 데이터 찾아서 팀 추출
 		List<TeamMember> teamMembers = teamMemberRepository.findAllByMember(member);
 		return teamMembers.stream()
 			.map(TeamMember::getTeam)
@@ -98,9 +98,11 @@ public class TeamService {
 
 	@Transactional
 	public void updateTeamInfo(Long teamId, TeamUpdateRequest request) {
+		// 팀 조회
 		Team team = teamRepository.findById(teamId)
 			.orElseThrow(() -> new BusinessException(ErrorCode.TEAM_NOT_FOUND));
 
+		// 팀 정보 업데이트
 		team.update(
 			request.name(),
 			request.bio(),
@@ -114,12 +116,20 @@ public class TeamService {
 
 	@Transactional
 	public void addTeamMember(Long teamId, Long memberId, TeamMemberUpdateRequest request) {
+		// 팀 조회
 		Team team = teamRepository.findById(teamId)
 			.orElseThrow(() -> new BusinessException(ErrorCode.TEAM_NOT_FOUND));
 
+		// 멤버 조회
 		Member member = memberRepository.findById(memberId)
 			.orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND));
 
+		// 최대 팀원 수와 현재 팀원 수 + 1 비교
+		if (team.getCurrentMemberCount() + 1 > team.getMaxMemberCount()) {
+			throw new BusinessException(ErrorCode.INVALID_MEMBER_COUNT);
+		}
+
+		// 팀원 추가
 		teamMemberRepository.save(
 			TeamMember.builder()
 				.team(team)
@@ -132,15 +142,19 @@ public class TeamService {
 
 	@Transactional
 	public void updateTeamMemberRole(Long teamId, Long memberId, TeamMemberUpdateRequest request) {
+		// 팀 조회
 		Team team = teamRepository.findById(teamId)
 			.orElseThrow(() -> new BusinessException(ErrorCode.TEAM_NOT_FOUND));
 
+		// 멤버 조회
 		Member member = memberRepository.findById(memberId)
 			.orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND));
 
+		// 팀원 조회
 		TeamMember teamMember = teamMemberRepository.findByTeamAndMember(team, member)
 			.orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND));
 
+		// 팀원 역할 업데이트
 		teamMember.updatePart(request.part());
 	}
 }

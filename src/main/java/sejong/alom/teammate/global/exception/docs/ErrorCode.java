@@ -22,6 +22,7 @@ public enum ErrorCode {
 
 	// 400 Bad Request
 	INVALID_INPUT(HttpStatus.BAD_REQUEST, "E400", "입력값이 올바르지 않습니다."),
+	INVALID_MEMBER_COUNT(HttpStatus.BAD_REQUEST, "T002", "최대 팀원 수를 초과할 수 없습니다."),
 
 	// 401 Unauthorized
 	INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "J001", "토큰이 유효하지 않습니다."),

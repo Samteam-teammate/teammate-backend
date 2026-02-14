@@ -8,6 +8,7 @@ import sejong.alom.teammate.global.enums.TeamCategory;
 
 @Builder
 public record TeamDetailResponse(
+	Long teamId,
 	String name,
 	String bio,
 	TeamCategory category,
@@ -18,6 +19,7 @@ public record TeamDetailResponse(
 ) {
 	public static TeamDetailResponse of(Team team, List<TeamMemberResponse> teamMember) {
 		return TeamDetailResponse.builder()
+			.teamId(team.getId())
 			.name(team.getName())
 			.bio(team.getBio())
 			.category(team.getCategory())

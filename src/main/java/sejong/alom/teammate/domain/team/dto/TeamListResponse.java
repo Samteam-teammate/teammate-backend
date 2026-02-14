@@ -6,6 +6,7 @@ import sejong.alom.teammate.global.enums.TeamCategory;
 
 @Builder
 public record TeamListResponse(
+	Long teamId,
 	String name,
 	String bio,
 	TeamCategory category,
@@ -14,6 +15,7 @@ public record TeamListResponse(
 ) {
 	public static TeamListResponse from(Team team) {
 		return TeamListResponse.builder()
+			.teamId(team.getId())
 			.name(team.getName())
 			.bio(team.getBio())
 			.category(team.getCategory())
