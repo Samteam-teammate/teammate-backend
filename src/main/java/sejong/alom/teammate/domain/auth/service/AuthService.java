@@ -55,6 +55,7 @@ public class AuthService {
 				data.put("tempToken", tempToken);
 				data.put("studentId", memberInfo.studentId());
 				data.put("name", memberInfo.name());
+				data.put("request studentId", "요청주신 학번=" + request.studentId());
 
 				log.info("발급된 임시 토큰: " + tempToken);
 				log.info("임시 토큰의 sub: " + authTokenProvider.getSubject(tempToken));
