@@ -20,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 import sejong.alom.teammate.domain.team.dto.TeamCreateRequest;
 import sejong.alom.teammate.domain.team.dto.TeamListResponse;
 import sejong.alom.teammate.domain.team.dto.TeamDetailResponse;
+import sejong.alom.teammate.domain.team.dto.TeamUpdateRequest;
 import sejong.alom.teammate.domain.team.service.TeamService;
 import sejong.alom.teammate.global.util.BaseResponse;
 
@@ -63,9 +64,12 @@ public class TeamController {
 	@PatchMapping("/{teamId}")
 	@Operation(summary = "팀 정보 수정")
 	public ResponseEntity<BaseResponse<?>> updateTeam(
-		@PathVariable String teamId,
-		@AuthenticationPrincipal User principal
+		@PathVariable Long teamId,
+		@RequestBody TeamUpdateRequest request
 	) {
-		return null;
+		teamService.updateTeamInfo(teamId, request);
+
+		return ResponseEntity.status(HttpStatus.OK)
+			.body(BaseResponse.success("팀 정보가 수정되었습니다."));
 	}
 }

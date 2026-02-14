@@ -52,4 +52,15 @@ public class Team extends BaseTimeEntity {
 	private String teamImage;
 
 	private Boolean isPublic;
+
+	public void update(String name, String bio, TeamCategory category, String description,
+		Integer maxMemberCount, String teamImage, Boolean isPublic) {
+		if (name != null) this.name = name;
+		if (bio != null) this.bio = bio;
+		if (category != null) this.category = category;
+		if (description != null) this.description = description;
+		if (maxMemberCount != null) this.maxMemberCount = maxMemberCount;
+		if (teamImage != null) this.teamImage = teamImage;
+		if (isPublic != null) this.isPublic = isPublic;
+	}
 }
