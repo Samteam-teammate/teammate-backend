@@ -53,4 +53,8 @@ public class TeamMember extends BaseTimeEntity {
 
 	@Enumerated(EnumType.STRING)
 	private Part part;
+
+	public void updatePart(Part part) {
+		if (part != null) this.part = part;
+	}
 }
