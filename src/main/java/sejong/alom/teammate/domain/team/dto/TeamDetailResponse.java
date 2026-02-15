@@ -15,9 +15,10 @@ public record TeamDetailResponse(
 	Integer maxMemberCount,
 	Integer currentMemberCount,
 	String teamImage,
-	List<TeamMemberResponse> teamMember
+	List<TeamMemberResponse> teamMember,
+	Long recruitmentId
 ) {
-	public static TeamDetailResponse of(Team team, List<TeamMemberResponse> teamMember) {
+	public static TeamDetailResponse of(Team team, List<TeamMemberResponse> teamMember, Long recruitmentId) {
 		return TeamDetailResponse.builder()
 			.teamId(team.getId())
 			.name(team.getName())
@@ -27,6 +28,7 @@ public record TeamDetailResponse(
 			.currentMemberCount(team.getCurrentMemberCount())
 			.teamImage(team.getTeamImage())
 			.teamMember(teamMember)
+			.recruitmentId(recruitmentId)
 			.build();
 	}
 }

@@ -17,14 +17,12 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import sejong.alom.teammate.domain.auth.dto.MemberLoginRequest;
 import sejong.alom.teammate.domain.auth.dto.MemberRegisterRequest;
 import sejong.alom.teammate.domain.auth.dto.TokenDto;
 import sejong.alom.teammate.domain.auth.service.AuthService;
 import sejong.alom.teammate.global.util.BaseResponse;
 
-@Slf4j
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
@@ -37,12 +35,6 @@ public class AuthController {
 	public ResponseEntity<BaseResponse<?>> login(
 		@Valid @RequestBody MemberLoginRequest request
 	) {
-		log.info("로그인 요청 학번: " + request.studentId());
-		if (request.studentId()==null) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-				.body(BaseResponse.success("학번이 null로 들어오고 있습니다!!"));
-		}
-
 		// 로그인과 토큰 발행
 		TokenDto dto = authService.login(request);
 
@@ -50,7 +42,7 @@ public class AuthController {
 		return ResponseEntity.status(HttpStatus.OK)
 			.header(HttpHeaders.AUTHORIZATION, "Bearer " + dto.accessToken())
 			.header(HttpHeaders.SET_COOKIE, generateCookie(dto.refreshToken(), dto.refreshExpiration()))
-			.body(BaseResponse.success("로그인 되었습니다.", "로그인 요청 학번: " + request.studentId()));
+			.body(BaseResponse.success("로그인 되었습니다."));
 	}
 
 	@PostMapping(value = "/signup"/*, consumes = MediaType.MULTIPART_FORM_DATA_VALUE*/)
