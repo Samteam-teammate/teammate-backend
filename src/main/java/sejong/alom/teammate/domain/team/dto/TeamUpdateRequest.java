@@ -6,7 +6,6 @@ public record TeamUpdateRequest(
 	String name,
 	String bio,
 	TeamCategory category,
-	String description,
 	String teamImage,
 	Boolean isPublic,
 	Integer maxMemberCount

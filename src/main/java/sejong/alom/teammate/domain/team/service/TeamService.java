@@ -14,6 +14,8 @@ import sejong.alom.teammate.domain.member.entity.Member;
 import sejong.alom.teammate.domain.member.entity.Profile;
 import sejong.alom.teammate.domain.member.repository.MemberRepository;
 import sejong.alom.teammate.domain.member.repository.ProfileRepository;
+import sejong.alom.teammate.domain.recruitment.entity.Recruitment;
+import sejong.alom.teammate.domain.recruitment.repository.RecruitmentRepository;
 import sejong.alom.teammate.domain.team.dto.TeamCreateRequest;
 import sejong.alom.teammate.domain.team.dto.TeamDetailResponse;
 import sejong.alom.teammate.domain.team.dto.TeamListResponse;
@@ -36,6 +38,7 @@ public class TeamService {
 	private final TeamRepository teamRepository;
 	private final TeamMemberRepository teamMemberRepository;
 	private final ProfileRepository profileRepository;
+	private final RecruitmentRepository recruitmentRepository;
 
 	@Transactional
 	public void generateTeam(Long memberId, TeamCreateRequest request) {
@@ -74,6 +77,10 @@ public class TeamService {
 		Team team = teamRepository.findById(teamId)
 			.orElseThrow(() -> new BusinessException(ErrorCode.TEAM_NOT_FOUND));
 
+		// 모집 공고 조회
+		Recruitment recruitment = recruitmentRepository.findByTeam(team);
+		Long recruitmentId = recruitment == null ? null : recruitment.getId();
+
 		// 팀원과 멤버 엔티티 패치조인
 		List<TeamMember> teamMembers = teamMemberRepository.findAllByTeamWithMember(team);
 		List<Long> memberIds = teamMembers.stream()
@@ -93,7 +100,7 @@ public class TeamService {
 			})
 			.toList();
 
-		return TeamDetailResponse.of(team, teamMemberResponses);
+		return TeamDetailResponse.of(team, teamMemberResponses, recruitmentId);
 	}
 
 	@Transactional
@@ -107,7 +114,6 @@ public class TeamService {
 			request.name(),
 			request.bio(),
 			request.category(),
-			request.description(),
 			request.maxMemberCount(),
 			request.teamImage(),
 			request.isPublic()

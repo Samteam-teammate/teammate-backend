@@ -7,7 +7,6 @@ public record TeamCreateRequest(
 	String name,
 	String bio,
 	TeamCategory category,
-	String description,
 	String teamImage,
 	Boolean isPublic,
 	Integer maxMemberCount
@@ -17,7 +16,6 @@ public record TeamCreateRequest(
 			.name(name)
 			.bio(bio)
 			.category(category)
-			.description(description)
 			.teamImage(teamImage)
 			.isPublic(isPublic)
 			.maxMemberCount(maxMemberCount)
