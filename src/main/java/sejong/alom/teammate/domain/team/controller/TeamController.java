@@ -55,8 +55,8 @@ public class TeamController {
 
 	@GetMapping("/{teamId}")
 	@Operation(summary = "팀 상세 정보 조회")
-	public ResponseEntity<BaseResponse<TeamDetailResponse>> getTeam(@PathVariable Long teamId) {
-		TeamDetailResponse response = teamService.getTeamInfo(teamId);
+	public ResponseEntity<BaseResponse<TeamDetailResponse>> getTeamDetail(@PathVariable Long teamId) {
+		TeamDetailResponse response = teamService.getTeamDetail(teamId);
 
 		return ResponseEntity.status(HttpStatus.OK)
 			.body(BaseResponse.success("팀이 조회되었습니다.", response));

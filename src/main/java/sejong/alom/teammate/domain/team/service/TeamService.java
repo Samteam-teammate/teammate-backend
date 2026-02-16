@@ -1,9 +1,6 @@
 package sejong.alom.teammate.domain.team.service;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,9 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import sejong.alom.teammate.domain.member.entity.Member;
-import sejong.alom.teammate.domain.member.entity.Profile;
 import sejong.alom.teammate.domain.member.repository.MemberRepository;
-import sejong.alom.teammate.domain.member.repository.ProfileRepository;
 import sejong.alom.teammate.domain.recruitment.entity.Recruitment;
 import sejong.alom.teammate.domain.recruitment.repository.RecruitmentRepository;
 import sejong.alom.teammate.domain.team.dto.TeamCreateRequest;
@@ -37,7 +32,7 @@ public class TeamService {
 	private final MemberRepository memberRepository;
 	private final TeamRepository teamRepository;
 	private final TeamMemberRepository teamMemberRepository;
-	private final ProfileRepository profileRepository;
+	private final TeamMemberService teamMemberService;
 	private final RecruitmentRepository recruitmentRepository;
 
 	@Transactional
@@ -72,7 +67,7 @@ public class TeamService {
 	}
 
 	@Transactional(readOnly = true)
-	public TeamDetailResponse getTeamInfo(Long teamId) {
+	public TeamDetailResponse getTeamDetail(Long teamId) {
 		// 팀 조회
 		Team team = teamRepository.findById(teamId)
 			.orElseThrow(() -> new BusinessException(ErrorCode.TEAM_NOT_FOUND));
@@ -81,26 +76,9 @@ public class TeamService {
 		Recruitment recruitment = recruitmentRepository.findByTeam(team);
 		Long recruitmentId = recruitment == null ? null : recruitment.getId();
 
-		// 팀원과 멤버 엔티티 패치조인
-		List<TeamMember> teamMembers = teamMemberRepository.findAllByTeamWithMember(team);
-		List<Long> memberIds = teamMembers.stream()
-			.map(tm -> tm.getMember().getId())
-			.toList();
+		List<TeamMemberResponse> teamMembers = teamMemberService.getTeamMemberList(team);
 
-		// 관련 프로필 한번에 조회
-		Map<Long, Profile> profileMap = profileRepository.findAllByMemberIdIn(memberIds).stream()
-			.collect(Collectors.toMap(p -> p.getMember().getId(), p -> p));
-
-		// response로 변환
-		List<TeamMemberResponse> teamMemberResponses = teamMembers.stream()
-			.map(tm -> {
-				Profile profile = Optional.ofNullable(profileMap.get(tm.getMember().getId()))
-					.orElseThrow(() -> new BusinessException(ErrorCode.PROFILE_NOT_FOUND));
-				return TeamMemberResponse.of(tm, profile);
-			})
-			.toList();
-
-		return TeamDetailResponse.of(team, teamMemberResponses, recruitmentId);
+		return TeamDetailResponse.of(team, teamMembers, recruitmentId);
 	}
 
 	@Transactional
