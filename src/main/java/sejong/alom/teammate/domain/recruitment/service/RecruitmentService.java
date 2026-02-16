@@ -1,6 +1,7 @@
 package sejong.alom.teammate.domain.recruitment.service;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Service;
@@ -8,6 +9,7 @@ import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import sejong.alom.teammate.domain.recruitment.dto.RecruitmentCreateRequest;
+import sejong.alom.teammate.domain.recruitment.dto.RecruitmentUpdateRequest;
 import sejong.alom.teammate.domain.recruitment.entity.Recruitment;
 import sejong.alom.teammate.domain.recruitment.entity.RecruitmentPart;
 import sejong.alom.teammate.domain.recruitment.repository.RecruitmentPartRepository;
@@ -44,5 +46,22 @@ public class RecruitmentService {
 		data.put("recruitmentId", recruitment.getId());
 
 		return data;
+	}
+
+	public void updateRecruitment(Long recruitmentId, RecruitmentUpdateRequest request) {
+		Recruitment recruitment = recruitmentRepository.findById(recruitmentId)
+			.orElseThrow(() -> new BusinessException(ErrorCode.RECRUITMENT_NOT_FOUND));
+
+		recruitment.update(request.deadline(), request.description());
+
+		if (request.recruitmentParts() != null) {
+			List<RecruitmentPart> newParts = request.recruitmentParts().stream()
+				.map(p -> RecruitmentPart.builder()
+					.recruitment(recruitment)
+					.part(p)
+					.build())
+				.toList();
+			recruitment.updateParts(newParts);
+		}
 	}
 }

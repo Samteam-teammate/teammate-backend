@@ -49,12 +49,16 @@ public class RecruitmentController {
 			.body(BaseResponse.success("모집 공고가 생성되었습니다.", response));
 	}
 
-	@PatchMapping
+	@PatchMapping("/{recruitmentsId}")
 	@Operation(summary = "모집 공고 수정")
 	public ResponseEntity<BaseResponse<?>> updateRecruitment(
+		@PathVariable Long recruitmentsId,
 		@RequestBody RecruitmentUpdateRequest request
 	) {
-		return null;
+		recruitmentService.updateRecruitment(recruitmentsId, request);
+
+		return ResponseEntity.status(HttpStatus.OK)
+			.body(BaseResponse.success("모집 공고가 수정되었습니다."));
 	}
 
 	@GetMapping("/{recruitmentId}")

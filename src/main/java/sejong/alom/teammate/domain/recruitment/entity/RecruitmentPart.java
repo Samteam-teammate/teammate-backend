@@ -43,4 +43,8 @@ public class RecruitmentPart extends BaseTimeEntity {
 
 	@Enumerated(EnumType.STRING)
 	private Part part;
+
+	public void setRecruitment(Recruitment recruitment) {
+		this.recruitment = recruitment;
+	}
 }
