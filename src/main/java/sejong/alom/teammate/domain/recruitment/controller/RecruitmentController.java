@@ -66,7 +66,10 @@ public class RecruitmentController {
 	public ResponseEntity<BaseResponse<RecruitmentDetailResponse>> getRecruitmentDetail(
 		@PathVariable Long recruitmentId
 	) {
-		return null;
+		RecruitmentDetailResponse response = recruitmentService.getRecruitmentDetail(recruitmentId);
+
+		return ResponseEntity.status(HttpStatus.OK)
+			.body(BaseResponse.success("모집 공고가 조회되었습니다.", response));
 	}
 
 	@GetMapping

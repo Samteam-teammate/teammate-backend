@@ -9,13 +9,16 @@ import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import sejong.alom.teammate.domain.recruitment.dto.RecruitmentCreateRequest;
+import sejong.alom.teammate.domain.recruitment.dto.RecruitmentDetailResponse;
 import sejong.alom.teammate.domain.recruitment.dto.RecruitmentUpdateRequest;
 import sejong.alom.teammate.domain.recruitment.entity.Recruitment;
 import sejong.alom.teammate.domain.recruitment.entity.RecruitmentPart;
 import sejong.alom.teammate.domain.recruitment.repository.RecruitmentPartRepository;
 import sejong.alom.teammate.domain.recruitment.repository.RecruitmentRepository;
+import sejong.alom.teammate.domain.team.dto.TeamMemberResponse;
 import sejong.alom.teammate.domain.team.entity.Team;
 import sejong.alom.teammate.domain.team.repository.TeamRepository;
+import sejong.alom.teammate.domain.team.service.TeamMemberService;
 import sejong.alom.teammate.global.enums.Part;
 import sejong.alom.teammate.global.exception.BusinessException;
 import sejong.alom.teammate.global.exception.docs.ErrorCode;
@@ -27,6 +30,7 @@ public class RecruitmentService {
 	private final RecruitmentRepository recruitmentRepository;
 	private final TeamRepository teamRepository;
 	private final RecruitmentPartRepository recruitmentPartRepository;
+	private final TeamMemberService teamMemberService;
 
 	public Map<String, Long> generateRecruitment(RecruitmentCreateRequest request) {
 		Team team = teamRepository.findById(request.teamId())
@@ -63,5 +67,16 @@ public class RecruitmentService {
 				.toList();
 			recruitment.updateParts(newParts);
 		}
+	}
+
+	public RecruitmentDetailResponse getRecruitmentDetail(Long recruitmentId) {
+		Recruitment recruitment = recruitmentRepository.findWithTeamAndPartsById(recruitmentId)
+			.orElseThrow(() -> new BusinessException(ErrorCode.RECRUITMENT_NOT_FOUND));
+
+		Team team = recruitment.getTeam();
+
+		List<TeamMemberResponse> teamMembers = teamMemberService.getTeamMemberList(team);
+
+		return RecruitmentDetailResponse.of(team, recruitment, teamMembers);
 	}
 }
