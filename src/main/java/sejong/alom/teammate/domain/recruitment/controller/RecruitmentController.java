@@ -34,8 +34,6 @@ import sejong.alom.teammate.global.util.BaseResponse;
 @RequiredArgsConstructor
 @Tag(name = "Recruitment API", description = "팀원 모집 공고 관련 API 엔드포인트")
 public class RecruitmentController {
-	// TODO: 배포 전에 DB 어떻게 할지 고민하고 올리기
-	// 데이터 백업하고 아예 create 돌리거나..
 	private final RecruitmentService recruitmentService;
 
 	@PostMapping
@@ -82,9 +80,8 @@ public class RecruitmentController {
 	) {
 		Pageable pageable = PageRequest.of(page, size);
 
-		//Page<ProfileListResponse> recruitmentList = recruitmentService.getProfileList(request, pageable);
+		Page<RecruitmentListResponse> recruitmentList = recruitmentService.getRecruitmentList(request, pageable);
 
-		//return ResponseEntity.status(HttpStatus.OK).body(BaseResponse.success("모집 공고 목록이 조회되었습니다.", recruitmentList));
-		return null;
+		return ResponseEntity.status(HttpStatus.OK).body(BaseResponse.success("모집 공고 목록이 조회되었습니다.", recruitmentList));
 	}
 }

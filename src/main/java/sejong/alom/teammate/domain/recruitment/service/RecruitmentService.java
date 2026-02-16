@@ -4,12 +4,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import sejong.alom.teammate.domain.recruitment.dto.RecruitmentCreateRequest;
 import sejong.alom.teammate.domain.recruitment.dto.RecruitmentDetailResponse;
+import sejong.alom.teammate.domain.recruitment.dto.RecruitmentListFetchRequest;
+import sejong.alom.teammate.domain.recruitment.dto.RecruitmentListResponse;
 import sejong.alom.teammate.domain.recruitment.dto.RecruitmentUpdateRequest;
 import sejong.alom.teammate.domain.recruitment.entity.Recruitment;
 import sejong.alom.teammate.domain.recruitment.entity.RecruitmentPart;
@@ -78,5 +82,11 @@ public class RecruitmentService {
 		List<TeamMemberResponse> teamMembers = teamMemberService.getTeamMemberList(team);
 
 		return RecruitmentDetailResponse.of(team, recruitment, teamMembers);
+	}
+
+	public Page<RecruitmentListResponse> getRecruitmentList(RecruitmentListFetchRequest request, Pageable pageable) {
+		Page<Recruitment> recruitmentPage = recruitmentRepository.searchRecruitments(request, pageable);
+
+		return recruitmentPage.map(RecruitmentListResponse::from);
 	}
 }
