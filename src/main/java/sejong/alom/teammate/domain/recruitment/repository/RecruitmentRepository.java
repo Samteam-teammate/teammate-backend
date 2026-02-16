@@ -9,7 +9,7 @@ import org.springframework.data.repository.query.Param;
 import sejong.alom.teammate.domain.recruitment.entity.Recruitment;
 import sejong.alom.teammate.domain.team.entity.Team;
 
-public interface RecruitmentRepository extends JpaRepository<Recruitment, Long> {
+public interface RecruitmentRepository extends JpaRepository<Recruitment, Long>, RecruitmentRepositoryCustom {
 	Recruitment findByTeam(Team team);
 
 	@Query("select r from Recruitment r " +
