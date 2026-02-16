@@ -1,7 +1,10 @@
 package sejong.alom.teammate.domain.recruitment.entity;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -10,6 +13,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
@@ -44,5 +48,20 @@ public class Recruitment extends BaseTimeEntity {
 	private Team team;
 
 	private LocalDateTime deadline;
+
 	private String description;
+
+	@OneToMany(mappedBy = "recruitment", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<RecruitmentPart> recruitmentParts = new ArrayList<>();
+
+	public void update(LocalDateTime deadline, String description) {
+		if (deadline != null) this.deadline = deadline;
+		if (description != null) this.description = description;
+	}
+
+	public void updateParts(List<RecruitmentPart> newParts) {
+		this.recruitmentParts.clear(); // 기존 파트 삭제 (orphanRemoval = true 설정 필요)
+		this.recruitmentParts.addAll(newParts);
+		newParts.forEach(part -> part.setRecruitment(this));
+	}
 }
