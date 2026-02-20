@@ -64,4 +64,12 @@ public class ProfileService {
 
 		return profilePage.map(ProfileListResponse::from);
 	}
+
+	@Transactional(readOnly = true)
+	public ProfileResponse getProfileDetail(Long profileId) {
+		Profile profile = profileRepository.findById(profileId)
+			.orElseThrow(() -> new BusinessException(ErrorCode.PROFILE_NOT_FOUND));
+
+		return ProfileResponse.from(profile);
+	}
 }

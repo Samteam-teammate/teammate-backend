@@ -10,6 +10,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -70,5 +71,16 @@ public class ProfileController {
 
 		return ResponseEntity.status(HttpStatus.OK)
 			.body(BaseResponse.success("프로필 목록이 조회되었습니다.", profileList));
+	}
+
+	@GetMapping("/profiles/{profileId}")
+	@Operation(summary = "프로필 상세 조회")
+	public ResponseEntity<BaseResponse<ProfileResponse>> getProfileDetail(
+		@PathVariable Long profileId
+	) {
+		ProfileResponse response = profileService.getProfileDetail(profileId);
+
+		return ResponseEntity.status(HttpStatus.OK)
+			.body(BaseResponse.success("프로필이 조회되었습니다.", response));
 	}
 }
