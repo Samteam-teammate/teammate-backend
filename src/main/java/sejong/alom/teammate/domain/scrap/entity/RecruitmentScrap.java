@@ -16,7 +16,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import sejong.alom.teammate.domain.member.entity.Member;
-import sejong.alom.teammate.domain.team.entity.Team;
+import sejong.alom.teammate.domain.recruitment.entity.Recruitment;
 import sejong.alom.teammate.global.util.BaseTimeEntity;
 
 @Entity
@@ -25,22 +25,22 @@ import sejong.alom.teammate.global.util.BaseTimeEntity;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Table(name = "team_scrap")
-public class TeamScrap extends BaseTimeEntity {
+public class RecruitmentScrap extends BaseTimeEntity {
 	@Id
 	@GeneratedValue(
 		strategy = GenerationType.SEQUENCE,
-		generator = "team_scrap_seq_gen"
+		generator = "recruitment_scrap_seq_gen"
 	)
 	@SequenceGenerator(
-		name = "team_scrap_seq_gen",
-		sequenceName = "team_scrap_seq"
+		name = "recruitment_scrap_seq_gen",
+		sequenceName = "recruitment_scrap_seq"
 	)
-	@Column(name = "team_scrap_id")
+	@Column(name = "recruitment_scrap_id")
 	private Long id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "team_id")
-	private Team team;
+	@JoinColumn(name = "recruitment_id")
+	private Recruitment recruitment;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "member_id")

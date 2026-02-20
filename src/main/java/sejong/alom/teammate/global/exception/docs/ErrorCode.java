@@ -45,6 +45,7 @@ public enum ErrorCode {
 
 	// 409 Conflict
 	MEMBER_ALREADY_EXIST(HttpStatus.CONFLICT, "M002", "사용자가 이미 존재합니다."),
+	ALREADY_SCRAPPED(HttpStatus.CONFLICT, "S002", "이미 스크랩 되었습니다."),
 
 	// 502 Bad Gateway (Upstream Error)
 	SJU_UPSTREAM_ERROR(HttpStatus.BAD_GATEWAY, "U001", "세종대 포털 연결에 실패했습니다."),
