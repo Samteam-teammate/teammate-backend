@@ -81,9 +81,8 @@ public class ScrapController {
 		@AuthenticationPrincipal User principal,
 		@PathVariable Long profileId
 	) {
-		// scrapService.deleteProfileScrap(Long.parseLong(principal.getUsername()), profileId);
-		// return ResponseEntity.ok(BaseResponse.success("프로필 스크랩이 취소되었습니다."));
-		return null;
+		scrapService.deleteProfileScrap(Long.parseLong(principal.getUsername()), profileId);
+		return ResponseEntity.ok(BaseResponse.success("프로필 스크랩이 취소되었습니다."));
 	}
 
 	@GetMapping("/profiles")
