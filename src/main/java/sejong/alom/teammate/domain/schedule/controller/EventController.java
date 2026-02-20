@@ -23,6 +23,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import sejong.alom.teammate.domain.schedule.dto.EventCreateRequest;
 import sejong.alom.teammate.domain.schedule.dto.EventResponse;
+import sejong.alom.teammate.domain.schedule.dto.EventUpdateRequest;
 import sejong.alom.teammate.domain.schedule.service.EventService;
 import sejong.alom.teammate.global.util.BaseResponse;
 
@@ -57,8 +58,14 @@ public class EventController {
 
 	@PatchMapping("/{eventId}")
 	@Operation(summary = "일정 수정")
-	public ResponseEntity<BaseResponse<?>> updateEvent(@PathVariable Long teamId, @PathVariable Long eventId) {
-		return null;
+	public ResponseEntity<BaseResponse<?>> updateEvent(
+		@PathVariable Long teamId,
+		@PathVariable Long eventId,
+		@Valid @RequestBody EventUpdateRequest request
+	) {
+		eventService.updateEvent(teamId, eventId, request);
+		return ResponseEntity.status(HttpStatus.OK)
+			.body(BaseResponse.success("일정이 수정되었습니다."));
 	}
 
 	@DeleteMapping("/{eventId}")

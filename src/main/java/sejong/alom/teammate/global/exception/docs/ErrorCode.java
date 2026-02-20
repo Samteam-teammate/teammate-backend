@@ -19,6 +19,7 @@ public enum ErrorCode {
 	U Upstream
 	D db, redis
 	R Recruitment
+	C Calendar, Event
 	*/
 
 	// 400 Bad Request
@@ -40,6 +41,7 @@ public enum ErrorCode {
 	TEAM_NOT_FOUND(HttpStatus.NOT_FOUND, "T001", "팀이 존재하지 않습니다."),
 	SCRAP_NOT_FOUND(HttpStatus.NOT_FOUND, "S001", "스크랩 정보가 존재하지 않습니다."),
 	RECRUITMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "R001", "모집 공고가 존재하지 않습니다."),
+	EVENT_NOT_FOUND(HttpStatus.NOT_FOUND, "C001", "일정이 존재하지 않습니다."),
 
 	// 409 Conflict
 	MEMBER_ALREADY_EXIST(HttpStatus.CONFLICT, "M002", "사용자가 이미 존재합니다."),
