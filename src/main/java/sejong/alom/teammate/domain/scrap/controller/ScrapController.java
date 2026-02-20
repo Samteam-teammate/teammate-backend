@@ -70,10 +70,9 @@ public class ScrapController {
 		@AuthenticationPrincipal User principal,
 		@PathVariable Long profileId
 	) {
-		// scrapService.createProfileScrap(Long.parseLong(principal.getUsername()), profileId);
-		// return ResponseEntity.status(HttpStatus.OK)
-		//  	.body(BaseResponse.success("프로필을 스크랩했습니다."));
-		return null;
+		scrapService.createProfileScrap(Long.parseLong(principal.getUsername()), profileId);
+		return ResponseEntity.status(HttpStatus.OK)
+		 	.body(BaseResponse.success("프로필을 스크랩했습니다."));
 	}
 
 	@DeleteMapping("/profiles/{profileId}")
