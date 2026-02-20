@@ -2,6 +2,8 @@ package sejong.alom.teammate.domain.recruitment.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -16,6 +18,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import sejong.alom.teammate.domain.member.entity.Member;
+import sejong.alom.teammate.global.enums.ApplyStatus;
+import sejong.alom.teammate.global.enums.Part;
 import sejong.alom.teammate.global.util.BaseTimeEntity;
 
 @Entity
@@ -45,5 +49,17 @@ public class Apply extends BaseTimeEntity {
 	@JoinColumn(name = "member_id")
 	private Member member;
 
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
+	private ApplyStatus status;
+
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
+	private Part appliedPart;
+
 	private String description;
+
+	public void updateStatus(ApplyStatus status) {
+		this.status = status;
+	}
 }
