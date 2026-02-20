@@ -1,11 +1,20 @@
 package sejong.alom.teammate.domain.recruitment.service;
 
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import sejong.alom.teammate.domain.member.entity.Member;
+import sejong.alom.teammate.domain.member.entity.Profile;
 import sejong.alom.teammate.domain.member.repository.MemberRepository;
+import sejong.alom.teammate.domain.member.repository.ProfileRepository;
+import sejong.alom.teammate.domain.recruitment.dto.ApplicantResponse;
 import sejong.alom.teammate.domain.recruitment.dto.ApplyCreateRequest;
 import sejong.alom.teammate.domain.recruitment.entity.Apply;
 import sejong.alom.teammate.domain.recruitment.entity.Recruitment;
@@ -22,10 +31,11 @@ public class ApplyService {
 	private final TeamMemberRepository teamMemberRepository;
 	private final ApplyRepository applyRepository;
 	private final MemberRepository memberRepository;
+	private final ProfileRepository profileRepository;
 
 	@Transactional
 	public void createApply(Long memberId, Long recruitmentId, ApplyCreateRequest request) {
-		// 공고 존재 확인
+		// 공고 조회
 		Recruitment recruitment = recruitmentRepository.findWithTeamAndPartsById(recruitmentId)
 			.orElseThrow(() -> new BusinessException(ErrorCode.RECRUITMENT_NOT_FOUND));
 
@@ -56,5 +66,37 @@ public class ApplyService {
 				.description(request.description())
 				.build()
 		);
+	}
+
+	public Page<ApplicantResponse> getApplicants(Long memberId, Long recruitmentId, Pageable pageable) {
+		// 공고 조회
+		Recruitment recruitment = recruitmentRepository.findById(recruitmentId)
+			.orElseThrow(() -> new BusinessException(ErrorCode.RECRUITMENT_NOT_FOUND));
+
+		// 팀원 권한 체크
+		if (!teamMemberRepository.existsByTeamIdAndMemberId(recruitment.getTeam().getId(), memberId)) {
+			throw new BusinessException(ErrorCode.FORBIDDEN_ERROR);
+		}
+
+		// Apply와 Member 패치 조인
+		Page<Apply> applyPage = applyRepository.findAllByRecruitmentIdWithMember(recruitmentId, pageable);
+
+		// N+1 방지: 화면에 노출될 멤버들의 ID만 추출
+		List<Long> applicantMemberIds = applyPage.getContent().stream()
+			.map(apply -> apply.getMember().getId())
+			.toList();
+
+		// 프로필을 IN 쿼리로 한 번에 조회 후 Map으로 변환
+		Map<Long, Profile> profileMap = profileRepository.findAllByMemberIdIn(applicantMemberIds).stream()
+			.collect(Collectors.toMap(p -> p.getMember().getId(), p -> p));
+
+		// DTO로 변환하여 반환
+		return applyPage.map(apply -> {
+			Profile profile = profileMap.get(apply.getMember().getId());
+			if (profile == null) {
+				throw new BusinessException(ErrorCode.PROFILE_NOT_FOUND);
+			}
+			return ApplicantResponse.of(apply, profile);
+		});
 	}
 }
