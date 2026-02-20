@@ -1,10 +1,12 @@
 package sejong.alom.teammate.domain.team.entity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
@@ -12,6 +14,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import sejong.alom.teammate.domain.schedule.entity.Calendar;
 import sejong.alom.teammate.global.enums.TeamCategory;
 import sejong.alom.teammate.global.util.BaseTimeEntity;
 
@@ -51,6 +54,9 @@ public class Team extends BaseTimeEntity {
 
 	private Boolean isPublic;
 
+	@OneToOne(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
+	private Calendar calendar;
+
 	public void update(String name, String bio, TeamCategory category,
 		Integer maxMemberCount, String teamImage, Boolean isPublic) {
 		if (name != null) this.name = name;
@@ -59,5 +65,10 @@ public class Team extends BaseTimeEntity {
 		if (maxMemberCount != null) this.maxMemberCount = maxMemberCount;
 		if (teamImage != null) this.teamImage = teamImage;
 		if (isPublic != null) this.isPublic = isPublic;
+	}
+
+	public void setCalendar(Calendar calendar) {
+		this.calendar = calendar;
+		calendar.setTeam(this);
 	}
 }

@@ -56,8 +56,6 @@ public class AuthService {
 				data.put("studentId", memberInfo.studentId());
 				data.put("name", memberInfo.name());
 
-				log.info("발급된 임시 토큰: " + tempToken);
-				log.info("임시 토큰의 sub: " + authTokenProvider.getSubject(tempToken));
 				return new BusinessException(ErrorCode.MEMBER_NOT_FOUND, data);
 			});
 

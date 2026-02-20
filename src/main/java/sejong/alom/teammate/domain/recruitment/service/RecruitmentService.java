@@ -7,6 +7,7 @@ import java.util.Map;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +37,7 @@ public class RecruitmentService {
 	private final RecruitmentPartRepository recruitmentPartRepository;
 	private final TeamMemberService teamMemberService;
 
+	@Transactional
 	public Map<String, Long> generateRecruitment(RecruitmentCreateRequest request) {
 		Team team = teamRepository.findById(request.teamId())
 			.orElseThrow(() -> new BusinessException(ErrorCode.TEAM_NOT_FOUND));
@@ -56,6 +58,7 @@ public class RecruitmentService {
 		return data;
 	}
 
+	@Transactional
 	public void updateRecruitment(Long recruitmentId, RecruitmentUpdateRequest request) {
 		Recruitment recruitment = recruitmentRepository.findById(recruitmentId)
 			.orElseThrow(() -> new BusinessException(ErrorCode.RECRUITMENT_NOT_FOUND));
@@ -73,6 +76,7 @@ public class RecruitmentService {
 		}
 	}
 
+	@Transactional(readOnly = true)
 	public RecruitmentDetailResponse getRecruitmentDetail(Long recruitmentId) {
 		Recruitment recruitment = recruitmentRepository.findWithTeamAndPartsById(recruitmentId)
 			.orElseThrow(() -> new BusinessException(ErrorCode.RECRUITMENT_NOT_FOUND));
@@ -84,6 +88,7 @@ public class RecruitmentService {
 		return RecruitmentDetailResponse.of(team, recruitment, teamMembers);
 	}
 
+	@Transactional(readOnly = true)
 	public Page<RecruitmentListResponse> getRecruitmentList(RecruitmentListFetchRequest request, Pageable pageable) {
 		Page<Recruitment> recruitmentPage = recruitmentRepository.searchRecruitments(request, pageable);
 

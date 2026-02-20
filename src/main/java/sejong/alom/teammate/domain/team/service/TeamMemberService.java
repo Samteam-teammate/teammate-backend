@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +26,7 @@ public class TeamMemberService {
 	private final TeamMemberRepository teamMemberRepository;
 	private final ProfileRepository profileRepository;
 
+	@Transactional(readOnly = true)
 	public List<TeamMemberResponse> getTeamMemberList(Team team) {
 		// 팀원과 멤버 엔티티 패치조인
 		List<TeamMember> teamMembers = teamMemberRepository.findAllByTeamWithMember(team);
