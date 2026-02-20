@@ -67,6 +67,7 @@ public class ApplyService {
 			Apply.builder()
 				.recruitment(recruitment)
 				.member(member)
+				.status(ApplyStatus.PENDING)
 				.appliedPart(request.appliedPart())
 				.description(request.description())
 				.build()
