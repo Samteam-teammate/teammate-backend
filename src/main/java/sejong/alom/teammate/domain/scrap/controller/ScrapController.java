@@ -59,10 +59,9 @@ public class ScrapController {
 		@AuthenticationPrincipal User principal,
 		@PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
 	) {
-		// Page<ScrappedRecruitmentResponse> response =
-		// 	scrapService.getScrappedTeams(Long.parseLong(principal.getUsername()), pageable);
-		// return ResponseEntity.ok(BaseResponse.success("스크랩한 팀 목록을 조회했습니다.", response));
-		return null;
+		Page<ScrappedRecruitmentResponse> response =
+			scrapService.getScrappedRecruitments(Long.parseLong(principal.getUsername()), pageable);
+		return ResponseEntity.ok(BaseResponse.success("스크랩한 팀 목록을 조회했습니다.", response));
 	}
 
 	@PostMapping("/profiles/{profileId}")
