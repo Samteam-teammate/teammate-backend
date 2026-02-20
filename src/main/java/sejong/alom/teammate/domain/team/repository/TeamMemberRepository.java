@@ -14,6 +14,7 @@ import sejong.alom.teammate.domain.team.entity.TeamMember;
 public interface TeamMemberRepository extends JpaRepository<TeamMember, Long> {
 	List<TeamMember> findAllByMember(Member member);
 	Optional<TeamMember> findByTeamAndMember(Team team, Member member);
+	Boolean existsByTeamIdAndMemberId(Long teamId, Long memberId);
 
 	@Query("select tm from TeamMember tm join fetch tm.member m where tm.team = :team")
 	List<TeamMember> findAllByTeamWithMember(@Param("team") Team team);

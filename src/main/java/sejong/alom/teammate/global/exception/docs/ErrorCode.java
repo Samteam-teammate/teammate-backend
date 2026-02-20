@@ -18,13 +18,14 @@ public enum ErrorCode {
 	S Scrap
 	U Upstream
 	D db, redis
-	R Recruitment
+	R Recruitment, Apply
 	C Calendar, Event
 	*/
 
 	// 400 Bad Request
 	INVALID_INPUT(HttpStatus.BAD_REQUEST, "E400", "입력값이 올바르지 않습니다."),
 	INVALID_MEMBER_COUNT(HttpStatus.BAD_REQUEST, "T002", "최대 팀원 수를 초과할 수 없습니다."),
+	INVALID_APPLY_PART(HttpStatus.BAD_REQUEST, "R002", "해당 공고에서 모집하지 않는 파트입니다."),
 
 	// 401 Unauthorized
 	INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "J001", "토큰이 유효하지 않습니다."),
@@ -46,6 +47,8 @@ public enum ErrorCode {
 	// 409 Conflict
 	MEMBER_ALREADY_EXIST(HttpStatus.CONFLICT, "M002", "사용자가 이미 존재합니다."),
 	ALREADY_SCRAPPED(HttpStatus.CONFLICT, "S002", "이미 스크랩 되었습니다."),
+	ALREADY_TEAM_MEMBER(HttpStatus.CONFLICT, "T003", "이미 소속된 팀입니다."),
+	ALREADY_APPLIED(HttpStatus.CONFLICT, "M003", "이미 지원한 공고입니다."),
 
 	// 502 Bad Gateway (Upstream Error)
 	SJU_UPSTREAM_ERROR(HttpStatus.BAD_GATEWAY, "U001", "세종대 포털 연결에 실패했습니다."),
