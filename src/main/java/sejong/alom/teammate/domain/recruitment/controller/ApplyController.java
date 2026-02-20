@@ -23,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 import sejong.alom.teammate.domain.recruitment.dto.ApplicantResponse;
 import sejong.alom.teammate.domain.recruitment.dto.ApplyCreateRequest;
 import sejong.alom.teammate.domain.recruitment.dto.ApplyStatusUpdateRequest;
+import sejong.alom.teammate.domain.recruitment.dto.MyApplyResponse;
 import sejong.alom.teammate.domain.recruitment.service.ApplyService;
 import sejong.alom.teammate.global.util.BaseResponse;
 
@@ -41,6 +42,7 @@ public class ApplyController {
 		@Valid @RequestBody ApplyCreateRequest request
 	) {
 		applyService.createApply(Long.parseLong(principal.getUsername()), recruitmentId, request);
+
 		return ResponseEntity.status(HttpStatus.OK)
 			.body(BaseResponse.success("지원이 완료되었습니다."));
 	}
@@ -53,6 +55,7 @@ public class ApplyController {
 		@PageableDefault(sort = "createdAt", direction = Sort.Direction.ASC) Pageable pageable
 	) {
 		Page<ApplicantResponse> response = applyService.getApplicants(Long.parseLong(principal.getUsername()), recruitmentId, pageable);
+
 		return ResponseEntity.ok(BaseResponse.success("지원자 목록을 조회했습니다.", response));
 	}
 
@@ -64,7 +67,20 @@ public class ApplyController {
 		@Valid @RequestBody ApplyStatusUpdateRequest request
 	) {
 		applyService.decideApplyStatus(Long.parseLong(principal.getUsername()), applyId, request.status());
+
 		return ResponseEntity.status(HttpStatus.OK)
 			.body(BaseResponse.success("지원 상태가 변경되었습니다."));
+	}
+
+	@GetMapping("/me/applies")
+	@Operation(summary = "내 지원 현황 조회")
+	public ResponseEntity<BaseResponse<Page<MyApplyResponse>>> getMyApplies(
+		@AuthenticationPrincipal User principal,
+		@PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+	) {
+		Page<MyApplyResponse> response = applyService.getMyApplies(Long.parseLong(principal.getUsername()), pageable);
+
+		return ResponseEntity.status(HttpStatus.OK)
+			.body(BaseResponse.success("내 지원 현황을 조회했습니다.", response));
 	}
 }

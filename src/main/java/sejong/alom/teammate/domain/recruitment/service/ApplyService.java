@@ -16,6 +16,7 @@ import sejong.alom.teammate.domain.member.repository.MemberRepository;
 import sejong.alom.teammate.domain.member.repository.ProfileRepository;
 import sejong.alom.teammate.domain.recruitment.dto.ApplicantResponse;
 import sejong.alom.teammate.domain.recruitment.dto.ApplyCreateRequest;
+import sejong.alom.teammate.domain.recruitment.dto.MyApplyResponse;
 import sejong.alom.teammate.domain.recruitment.entity.Apply;
 import sejong.alom.teammate.domain.recruitment.entity.Recruitment;
 import sejong.alom.teammate.domain.recruitment.repository.ApplyRepository;
@@ -130,5 +131,10 @@ public class ApplyService {
 				.build();
 			teamMemberRepository.save(newTeamMember);
 		}
+	}
+
+	public Page<MyApplyResponse> getMyApplies(Long memberId, Pageable pageable) {
+		return applyRepository.findAllByMemberIdWithRecruitmentAndTeam(memberId, pageable)
+			.map(MyApplyResponse::from);
 	}
 }
