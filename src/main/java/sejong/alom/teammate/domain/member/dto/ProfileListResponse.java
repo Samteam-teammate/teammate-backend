@@ -9,6 +9,7 @@ import sejong.alom.teammate.global.enums.Skill;
 
 @Builder
 public record ProfileListResponse(
+	Long profileId,
 	String nickname,
 	String bio,
 	Boolean isOpenToWork,
@@ -18,6 +19,7 @@ public record ProfileListResponse(
 ) {
 	public static ProfileListResponse from(Profile profile) {
 		return ProfileListResponse.builder()
+			.profileId(profile.getId())
 			.nickname(profile.getNickname())
 			.bio(profile.getBio())
 			.isOpenToWork(profile.getIsOpenToWork())

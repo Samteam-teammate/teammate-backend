@@ -36,7 +36,7 @@ public class EventController {
 
 	@GetMapping
 	@Operation(summary = "일정 목록 조회", description = "날짜는 yyyy-MM-dd 형태로 받습니다")
-	public ResponseEntity<BaseResponse<?>> getEvents(
+	public ResponseEntity<BaseResponse<List<EventResponse>>> getEvents(
 		@PathVariable Long teamId,
 		@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
 		@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate

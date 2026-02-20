@@ -12,6 +12,7 @@ import sejong.alom.teammate.global.enums.TeamCategory;
 
 @Builder
 public record RecruitmentListResponse(
+	Long recruitmentId,
 	String teamName,
 	String teamImage,
 	TeamCategory category,
@@ -22,6 +23,7 @@ public record RecruitmentListResponse(
 	public static RecruitmentListResponse from(Recruitment recruitment) {
 		Team team = recruitment.getTeam();
 		return RecruitmentListResponse.builder()
+			.recruitmentId(recruitment.getId())
 			.teamName(team.getName())
 			.teamImage(team.getTeamImage())
 			.category(team.getCategory())
