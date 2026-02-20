@@ -7,11 +7,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import sejong.alom.teammate.domain.member.entity.Member;
+import sejong.alom.teammate.domain.member.entity.Profile;
 import sejong.alom.teammate.domain.member.repository.MemberRepository;
+import sejong.alom.teammate.domain.member.repository.ProfileRepository;
 import sejong.alom.teammate.domain.recruitment.entity.Recruitment;
 import sejong.alom.teammate.domain.recruitment.repository.RecruitmentRepository;
 import sejong.alom.teammate.domain.scrap.dto.ScrappedRecruitmentResponse;
+import sejong.alom.teammate.domain.scrap.entity.ProfileScrap;
 import sejong.alom.teammate.domain.scrap.entity.RecruitmentScrap;
+import sejong.alom.teammate.domain.scrap.repository.ProfileScrapRepository;
 import sejong.alom.teammate.domain.scrap.repository.RecruitmentScrapRepository;
 import sejong.alom.teammate.global.exception.BusinessException;
 import sejong.alom.teammate.global.exception.docs.ErrorCode;
@@ -22,6 +26,8 @@ public class ScrapService {
 	private final RecruitmentScrapRepository recruitmentScrapRepository;
 	private final RecruitmentRepository recruitmentRepository;
 	private final MemberRepository memberRepository;
+	private final ProfileScrapRepository profileScrapRepository;
+	private final ProfileRepository profileRepository;
 
 	@Transactional
 	public void createRecruitmentScrap(Long memberId, Long recruitmentId) {
@@ -52,5 +58,22 @@ public class ScrapService {
 	public Page<ScrappedRecruitmentResponse> getScrappedRecruitments(Long memberId, Pageable pageable) {
 		return recruitmentScrapRepository.findAllByMemberIdWithRecruitmentAndTeam(memberId, pageable)
 			.map(ScrappedRecruitmentResponse::from);
+	}
+
+	@Transactional
+	public void createProfileScrap(Long memberId, Long profileId) {
+		if (profileScrapRepository.existsByProfileIdAndMemberId(profileId, memberId)) {
+			throw new BusinessException(ErrorCode.ALREADY_SCRAPPED);
+		}
+		Profile profile = profileRepository.findById(profileId)
+			.orElseThrow(() -> new BusinessException(ErrorCode.PROFILE_NOT_FOUND));
+		Member member = memberRepository.getReferenceById(memberId);
+
+		profileScrapRepository.save(
+			ProfileScrap.builder()
+				.profile(profile)
+				.member(member)
+				.build()
+		);
 	}
 }
