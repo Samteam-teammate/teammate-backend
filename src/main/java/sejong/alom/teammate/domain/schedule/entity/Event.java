@@ -51,4 +51,11 @@ public class Event extends BaseTimeEntity {
 	private LocalDateTime startTime;
 
 	private LocalDateTime endTime;
+
+	public void update(String title, String description, LocalDateTime startTime, LocalDateTime endTime) {
+		if (title != null) this.title = title;
+		if (description != null) this.description = description;
+		if (startTime != null) this.startTime = startTime;
+		if (endTime != null) this.endTime = endTime;
+	}
 }

@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import sejong.alom.teammate.domain.schedule.dto.EventCreateRequest;
 import sejong.alom.teammate.domain.schedule.dto.EventResponse;
+import sejong.alom.teammate.domain.schedule.dto.EventUpdateRequest;
 import sejong.alom.teammate.domain.schedule.entity.Event;
 import sejong.alom.teammate.domain.schedule.repository.EventRepository;
 import sejong.alom.teammate.domain.team.entity.Team;
@@ -42,5 +43,21 @@ public class EventService {
 		Event event = request.to(team.getCalendar());
 
 		return eventRepository.save(event).getId();
+	}
+
+	@Transactional
+	public void updateEvent(Long teamId, Long eventId, EventUpdateRequest request) {
+		Event event = getValidEvent(teamId, eventId);
+		event.update(request.title(), request.description(), request.startTime(), request.endTime());
+	}
+
+	private Event getValidEvent(Long teamId, Long eventId) {
+		Event event = eventRepository.findById(eventId)
+			.orElseThrow(() -> new BusinessException(ErrorCode.EVENT_NOT_FOUND));
+
+		if (!event.getCalendar().getTeam().getId().equals(teamId)) {
+			throw new BusinessException(ErrorCode.FORBIDDEN_ERROR);
+		}
+		return event;
 	}
 }
