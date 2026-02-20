@@ -91,9 +91,8 @@ public class ScrapController {
 		@AuthenticationPrincipal User principal,
 		@PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
 	) {
-		//Page<ScrappedProfileResponse> response =
-		//	scrapService.getScrappedProfiles(Long.parseLong(principal.getUsername()), pageable);
-		//return ResponseEntity.ok(BaseResponse.success("스크랩한 프로필 목록을 조회했습니다.", response));
-		return null;
+		Page<ScrappedProfileResponse> response =
+			scrapService.getScrappedProfiles(Long.parseLong(principal.getUsername()), pageable);
+		return ResponseEntity.ok(BaseResponse.success("스크랩한 프로필 목록을 조회했습니다.", response));
 	}
 }
