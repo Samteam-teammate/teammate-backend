@@ -76,4 +76,12 @@ public class ScrapService {
 				.build()
 		);
 	}
+
+	@Transactional
+	public void deleteProfileScrap(Long memberId, Long profileId) {
+		ProfileScrap scrap = profileScrapRepository.findByProfileIdAndMemberId(profileId, memberId)
+			.orElseThrow(() -> new BusinessException(ErrorCode.SCRAP_NOT_FOUND));
+
+		profileScrapRepository.delete(scrap);
+	}
 }
