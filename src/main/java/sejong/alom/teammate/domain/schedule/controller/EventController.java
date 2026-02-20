@@ -71,6 +71,7 @@ public class EventController {
 	@DeleteMapping("/{eventId}")
 	@Operation(summary = "일정 삭제")
 	public ResponseEntity<BaseResponse<?>> deleteEvent(@PathVariable Long teamId, @PathVariable Long eventId) {
-		return null;
+		eventService.deleteEvent(teamId, eventId);
+		return ResponseEntity.ok(BaseResponse.success("일정이 삭제되었습니다."));
 	}
 }
