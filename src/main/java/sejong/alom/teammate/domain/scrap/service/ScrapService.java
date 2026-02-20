@@ -36,4 +36,12 @@ public class ScrapService {
 				.build()
 		);
 	}
+
+	@Transactional
+	public void deleteTeamScrap(Long memberId, Long recruitmentId) {
+		RecruitmentScrap scrap = recruitmentScrapRepository.findByRecruitmentIdAndMemberId(recruitmentId, memberId)
+			.orElseThrow(() -> new BusinessException(ErrorCode.SCRAP_NOT_FOUND));
+
+		recruitmentScrapRepository.delete(scrap);
+	}
 }

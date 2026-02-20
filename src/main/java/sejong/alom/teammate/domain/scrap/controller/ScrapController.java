@@ -49,9 +49,8 @@ public class ScrapController {
 		@AuthenticationPrincipal User principal,
 		@PathVariable Long recruitmentId
 	) {
-		// scrapService.deleteTeamScrap(Long.parseLong(principal.getUsername()), recruitmentId);
-		// return ResponseEntity.ok(BaseResponse.success("팀 스크랩이 취소되었습니다."));
-		return null;
+		scrapService.deleteTeamScrap(Long.parseLong(principal.getUsername()), recruitmentId);
+		return ResponseEntity.ok(BaseResponse.success("팀 스크랩이 취소되었습니다."));
 	}
 
 	@GetMapping("/recruitments")
