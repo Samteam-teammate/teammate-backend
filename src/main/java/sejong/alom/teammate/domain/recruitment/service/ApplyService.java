@@ -20,7 +20,11 @@ import sejong.alom.teammate.domain.recruitment.entity.Apply;
 import sejong.alom.teammate.domain.recruitment.entity.Recruitment;
 import sejong.alom.teammate.domain.recruitment.repository.ApplyRepository;
 import sejong.alom.teammate.domain.recruitment.repository.RecruitmentRepository;
+import sejong.alom.teammate.domain.team.entity.Team;
+import sejong.alom.teammate.domain.team.entity.TeamMember;
 import sejong.alom.teammate.domain.team.repository.TeamMemberRepository;
+import sejong.alom.teammate.global.enums.ApplyStatus;
+import sejong.alom.teammate.global.enums.TeamMemberRole;
 import sejong.alom.teammate.global.exception.BusinessException;
 import sejong.alom.teammate.global.exception.docs.ErrorCode;
 
@@ -98,5 +102,33 @@ public class ApplyService {
 			}
 			return ApplicantResponse.of(apply, profile);
 		});
+	}
+
+	@Transactional
+	public void decideApplyStatus(Long currentMemberId, Long applyId, ApplyStatus status) {
+		// 지원 정보 조회
+		Apply apply = applyRepository.findById(applyId)
+			.orElseThrow(() -> new BusinessException(ErrorCode.APPLY_NOT_FOUND));
+		Team team = apply.getRecruitment().getTeam();
+
+		// api 요청자의 권한 확인
+		TeamMember currentTeamMember = teamMemberRepository.findByTeamIdAndMemberId(team.getId(), currentMemberId)
+			.orElseThrow(() -> new BusinessException(ErrorCode.FORBIDDEN_ERROR));
+		if (currentTeamMember.getRole() != TeamMemberRole.LEADER) {
+			throw new BusinessException(ErrorCode.FORBIDDEN_ERROR);
+		}
+
+		apply.updateStatus(status);
+
+		// 합격 시 팀원으로 편입
+		if (status == ApplyStatus.ACCEPTED) {
+			TeamMember newTeamMember = TeamMember.builder()
+				.team(team)
+				.member(apply.getMember())
+				.role(TeamMemberRole.MEMBER)
+				.part(apply.getAppliedPart())
+				.build();
+			teamMemberRepository.save(newTeamMember);
+		}
 	}
 }
