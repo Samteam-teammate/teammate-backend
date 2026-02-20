@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,6 +22,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import sejong.alom.teammate.domain.recruitment.dto.ApplicantResponse;
 import sejong.alom.teammate.domain.recruitment.dto.ApplyCreateRequest;
+import sejong.alom.teammate.domain.recruitment.dto.ApplyStatusUpdateRequest;
 import sejong.alom.teammate.domain.recruitment.service.ApplyService;
 import sejong.alom.teammate.global.util.BaseResponse;
 
@@ -52,5 +54,17 @@ public class ApplyController {
 	) {
 		Page<ApplicantResponse> response = applyService.getApplicants(Long.parseLong(principal.getUsername()), recruitmentId, pageable);
 		return ResponseEntity.ok(BaseResponse.success("지원자 목록을 조회했습니다.", response));
+	}
+
+	@PatchMapping("/applies/{applyId}/status")
+	@Operation(summary = "지원자 합불 결정", description = "ACCEPTED 또는 REJECTED 상태로 변경합니다.")
+	public ResponseEntity<BaseResponse<?>> decideApplyStatus(
+		@AuthenticationPrincipal User principal,
+		@PathVariable Long applyId,
+		@Valid @RequestBody ApplyStatusUpdateRequest request
+	) {
+		applyService.decideApplyStatus(Long.parseLong(principal.getUsername()), applyId, request.status());
+		return ResponseEntity.status(HttpStatus.OK)
+			.body(BaseResponse.success("지원 상태가 변경되었습니다."));
 	}
 }
