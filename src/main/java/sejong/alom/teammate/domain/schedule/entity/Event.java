@@ -17,7 +17,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import sejong.alom.teammate.domain.team.entity.Team;
 import sejong.alom.teammate.global.util.BaseTimeEntity;
 
 @Entity
@@ -40,10 +39,6 @@ public class Event extends BaseTimeEntity {
 	private Long id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "team_id")
-	private Team team;
-
-	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "calendar_id")
 	private Calendar calendar;
 
@@ -53,5 +48,7 @@ public class Event extends BaseTimeEntity {
 	private String description;
 
 	@Column(nullable = false)
-	private LocalDateTime eventDate;
+	private LocalDateTime startTime;
+
+	private LocalDateTime endTime;
 }

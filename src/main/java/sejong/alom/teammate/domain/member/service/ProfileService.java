@@ -27,7 +27,6 @@ public class ProfileService {
 
 	@Transactional(readOnly = true)
 	public ProfileResponse getMyProfile(Long memberId) {
-		log.info("요청 id: " + memberId);
 		// 요청 id로 member 조회
 		Member member = memberRepository.findById(memberId)
 			.orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND));

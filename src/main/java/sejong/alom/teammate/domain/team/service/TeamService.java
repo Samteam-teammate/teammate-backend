@@ -11,6 +11,7 @@ import sejong.alom.teammate.domain.member.entity.Member;
 import sejong.alom.teammate.domain.member.repository.MemberRepository;
 import sejong.alom.teammate.domain.recruitment.entity.Recruitment;
 import sejong.alom.teammate.domain.recruitment.repository.RecruitmentRepository;
+import sejong.alom.teammate.domain.schedule.entity.Calendar;
 import sejong.alom.teammate.domain.team.dto.TeamCreateRequest;
 import sejong.alom.teammate.domain.team.dto.TeamDetailResponse;
 import sejong.alom.teammate.domain.team.dto.TeamListResponse;
@@ -50,6 +51,9 @@ public class TeamService {
 				.role(TeamMemberRole.LEADER)
 				.build()
 		);
+		Calendar calendar = Calendar.builder().build();
+		team.setCalendar(calendar);
+
 	}
 
 	@Transactional(readOnly = true)

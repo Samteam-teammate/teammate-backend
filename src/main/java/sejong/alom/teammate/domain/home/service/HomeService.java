@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import sejong.alom.teammate.domain.home.dto.HomeResponse;
@@ -22,6 +23,7 @@ public class HomeService {
 	private final RecruitmentService recruitmentService;
 	private final ProfileService profileService;
 
+	@Transactional(readOnly = true)
 	public HomeResponse getHomeContent() {
 		Pageable pageable = PageRequest.of(0, 5);
 
