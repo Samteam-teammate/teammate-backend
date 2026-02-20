@@ -12,6 +12,7 @@ import sejong.alom.teammate.domain.member.repository.MemberRepository;
 import sejong.alom.teammate.domain.member.repository.ProfileRepository;
 import sejong.alom.teammate.domain.recruitment.entity.Recruitment;
 import sejong.alom.teammate.domain.recruitment.repository.RecruitmentRepository;
+import sejong.alom.teammate.domain.scrap.dto.ScrappedProfileResponse;
 import sejong.alom.teammate.domain.scrap.dto.ScrappedRecruitmentResponse;
 import sejong.alom.teammate.domain.scrap.entity.ProfileScrap;
 import sejong.alom.teammate.domain.scrap.entity.RecruitmentScrap;
@@ -83,5 +84,11 @@ public class ScrapService {
 			.orElseThrow(() -> new BusinessException(ErrorCode.SCRAP_NOT_FOUND));
 
 		profileScrapRepository.delete(scrap);
+	}
+
+	@Transactional(readOnly = true)
+	public Page<ScrappedProfileResponse> getScrappedProfiles(Long memberId, Pageable pageable) {
+		return profileScrapRepository.findAllByMemberIdWithProfile(memberId, pageable)
+			.map(ScrappedProfileResponse::from);
 	}
 }
