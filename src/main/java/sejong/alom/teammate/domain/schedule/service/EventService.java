@@ -51,6 +51,12 @@ public class EventService {
 		event.update(request.title(), request.description(), request.startTime(), request.endTime());
 	}
 
+	@Transactional
+	public void deleteEvent(Long teamId, Long eventId) {
+		Event event = getValidEvent(teamId, eventId);
+		eventRepository.delete(event);
+	}
+
 	private Event getValidEvent(Long teamId, Long eventId) {
 		Event event = eventRepository.findById(eventId)
 			.orElseThrow(() -> new BusinessException(ErrorCode.EVENT_NOT_FOUND));
