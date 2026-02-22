@@ -59,8 +59,6 @@ public class ChatRoomService {
 
 	@Transactional
 	public Long getOrCreateTeamRoom(Long teamId, Long myId) {
-		// TODO: myId가 해당 팀의 멤버인지 권한 검증 필요
-
 		ChatRoom teamRoom = chatRoomRepository.findByTeamIdAndType(teamId, ChatType.TEAM)
 			.orElseGet(() -> {
 				Team team = teamRepository.findById(teamId).orElseThrow();

@@ -5,6 +5,7 @@ import java.io.IOException;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -15,6 +16,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import sejong.alom.teammate.domain.auth.provider.AuthTokenProvider;
 
+@Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	private final AuthTokenProvider authTokenProvider;
@@ -28,7 +30,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		String token = resolveToken(request);
 
 		// 토큰 유효성 검사
-		if (token != null && authTokenProvider.isValidToken(token)) {
+		if (StringUtils.hasText(token)) {
+			authTokenProvider.validateToken(token);
+
 			// 로그아웃 여부를 확인하기 위해 redis 조회
 			String isLogout = redisTemplate.opsForValue().get("auth:blacklist:" + token);
 

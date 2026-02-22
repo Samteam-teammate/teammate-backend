@@ -56,17 +56,11 @@ public class AuthTokenProvider {
 		return buildToken(String.valueOf(id), jwtRefreshExpirationSeconds, claims);
 	}
 
-	public boolean isValidToken(String token) {
-		try {
-			Jwts.parser()
-				.verifyWith(secretKey())
-				.build()
-				.parse(token);
-			return true;
-		} catch (Exception e) {
-			// TODO: 토큰 관련 에러 핸들링
-			return false;
-		}
+	public void validateToken(String token) {
+		Jwts.parser()
+			.verifyWith(secretKey())
+			.build()
+			.parse(token);
 	}
 
 	public boolean isTempToken(String token) {
@@ -96,7 +90,9 @@ public class AuthTokenProvider {
 	}
 
 	public String getStudentIdFromTempToken(String token) {
-		if (!isValidToken(token)) {
+		try {
+			validateToken(token);
+		} catch (Exception e) {
 			throw new RuntimeException("잘못된 접근입니다.");
 		}
 

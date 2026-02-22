@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import sejong.alom.teammate.domain.chat.dto.ChatMessageResponse;
 import sejong.alom.teammate.domain.chat.dto.ChatRoomResponse;
@@ -30,6 +31,7 @@ import sejong.alom.teammate.global.util.BaseResponse;
 @RestController
 @RequestMapping("/api/chats")
 @RequiredArgsConstructor
+@Tag(name = "Chat API", description = "채팅 관련 API 엔드포인트")
 public class ChatRoomController {
 	private final ChatRoomService chatRoomService;
 

@@ -21,6 +21,10 @@ public record BaseResponse<T>(
 		return new BaseResponse<>(e.getStatus().value(), e.getMessage(), e.getCode());
 	}
 
+	public static BaseResponse<?> fail(ErrorCode e, String message) {
+		return new BaseResponse<>(e.getStatus().value(), message, e.getCode());
+	}
+
 	public static <T> BaseResponse<T> fail(ErrorCode e, T detail) {
 		return new BaseResponse<>(e.getStatus().value(), e.getMessage(), detail);
 	}

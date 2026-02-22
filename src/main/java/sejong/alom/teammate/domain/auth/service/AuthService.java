@@ -66,9 +66,12 @@ public class AuthService {
 	@Transactional
 	public TokenDto register(MemberRegisterRequest request, MultipartFile profileImage) {
 		// 임시 토큰 유효성 검사
-		if (!authTokenProvider.isValidToken(request.tempToken())) {
+		try {
+			authTokenProvider.validateToken(request.tempToken());
+		} catch (Exception e){
 			throw new BusinessException(ErrorCode.INVALID_TOKEN);
 		}
+
 		String studentId = authTokenProvider.getStudentIdFromTempToken(request.tempToken());
 
 		// 임시 토큰의 학번 일치 확인
@@ -104,7 +107,9 @@ public class AuthService {
 	@Transactional
 	public TokenDto reissueToken(String refreshToken) {
 		// refresh token 유효성 확인
-		if (!authTokenProvider.isValidToken(refreshToken)) {
+		try {
+			authTokenProvider.validateToken(refreshToken);
+		} catch (Exception e){
 			throw new BusinessException(ErrorCode.INVALID_TOKEN);
 		}
 
