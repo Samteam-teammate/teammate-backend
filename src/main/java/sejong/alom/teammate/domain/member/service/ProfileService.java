@@ -1,5 +1,8 @@
 package sejong.alom.teammate.domain.member.service;
 
+import java.util.List;
+import java.util.Set;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -15,6 +18,7 @@ import sejong.alom.teammate.domain.member.entity.Member;
 import sejong.alom.teammate.domain.member.entity.Profile;
 import sejong.alom.teammate.domain.member.repository.MemberRepository;
 import sejong.alom.teammate.domain.member.repository.ProfileRepository;
+import sejong.alom.teammate.domain.scrap.repository.ProfileScrapRepository;
 import sejong.alom.teammate.global.exception.BusinessException;
 import sejong.alom.teammate.global.exception.docs.ErrorCode;
 
@@ -24,6 +28,7 @@ import sejong.alom.teammate.global.exception.docs.ErrorCode;
 public class ProfileService {
 	private final ProfileRepository profileRepository;
 	private final MemberRepository memberRepository;
+	private final ProfileScrapRepository profileScrapRepository;
 
 	@Transactional(readOnly = true)
 	public ProfileResponse getMyProfile(Long memberId) {
@@ -59,10 +64,17 @@ public class ProfileService {
 	}
 
 	@Transactional(readOnly = true)
-	public Page<ProfileListResponse> getProfileList(ProfileListFetchRequest request, Pageable pageable) {
+	public Page<ProfileListResponse> getProfileList(Long memberId, ProfileListFetchRequest request, Pageable pageable) {
 		Page<Profile> profilePage = profileRepository.searchProfiles(request, pageable);
 
-		return profilePage.map(ProfileListResponse::from);
+		if (memberId == null) {
+			return profilePage.map(p -> ProfileListResponse.from(p, false));
+		}
+
+		List<Long> profileIds = profilePage.getContent().stream().map(Profile::getId).toList();
+		Set<Long> scrappedIds = profileScrapRepository.findScrappedProfileIds(memberId, profileIds);
+
+		return profilePage.map(p -> ProfileListResponse.from(p, scrappedIds.contains(p.getId())));
 	}
 
 	@Transactional(readOnly = true)

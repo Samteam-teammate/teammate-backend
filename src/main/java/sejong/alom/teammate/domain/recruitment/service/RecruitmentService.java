@@ -3,6 +3,7 @@ package sejong.alom.teammate.domain.recruitment.service;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,6 +21,7 @@ import sejong.alom.teammate.domain.recruitment.entity.Recruitment;
 import sejong.alom.teammate.domain.recruitment.entity.RecruitmentPart;
 import sejong.alom.teammate.domain.recruitment.repository.RecruitmentPartRepository;
 import sejong.alom.teammate.domain.recruitment.repository.RecruitmentRepository;
+import sejong.alom.teammate.domain.scrap.repository.RecruitmentScrapRepository;
 import sejong.alom.teammate.domain.team.dto.TeamMemberResponse;
 import sejong.alom.teammate.domain.team.entity.Team;
 import sejong.alom.teammate.domain.team.repository.TeamRepository;
@@ -36,6 +38,7 @@ public class RecruitmentService {
 	private final TeamRepository teamRepository;
 	private final RecruitmentPartRepository recruitmentPartRepository;
 	private final TeamMemberService teamMemberService;
+	private final RecruitmentScrapRepository recruitmentScrapRepository;
 
 	@Transactional
 	public Map<String, Long> generateRecruitment(RecruitmentCreateRequest request) {
@@ -89,9 +92,22 @@ public class RecruitmentService {
 	}
 
 	@Transactional(readOnly = true)
-	public Page<RecruitmentListResponse> getRecruitmentList(RecruitmentListFetchRequest request, Pageable pageable) {
+	public Page<RecruitmentListResponse> getRecruitmentList(Long memberId, RecruitmentListFetchRequest request, Pageable pageable) {
 		Page<Recruitment> recruitmentPage = recruitmentRepository.searchRecruitments(request, pageable);
 
-		return recruitmentPage.map(RecruitmentListResponse::from);
+		if (memberId == null) {
+			return recruitmentPage.map(r -> RecruitmentListResponse.from(r, false));
+		}
+
+		List<Long> recruitmentIds = recruitmentPage.getContent().stream()
+			.map(Recruitment::getId)
+			.toList();
+
+		Set<Long> scrappedIds = recruitmentScrapRepository.findScrappedRecruitmentIds(memberId, recruitmentIds);
+
+		return recruitmentPage.map(r -> {
+			boolean isScrapped = scrappedIds.contains(r.getId());
+			return RecruitmentListResponse.from(r, isScrapped);
+		});
 	}
 }

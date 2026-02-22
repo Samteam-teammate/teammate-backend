@@ -24,7 +24,7 @@ public class HomeService {
 	private final ProfileService profileService;
 
 	@Transactional(readOnly = true)
-	public HomeResponse getHomeContent() {
+	public HomeResponse getHomeContent(Long memberId) {
 		Pageable pageable = PageRequest.of(0, 5);
 
 		RecruitmentListFetchRequest popularRecruitmentConditions = RecruitmentListFetchRequest.builder()
@@ -40,14 +40,17 @@ public class HomeService {
 			.build();
 
 		List<RecruitmentListResponse> popularRecruitments = recruitmentService.getRecruitmentList(
+			memberId,
 			popularRecruitmentConditions,
 			pageable
 		).getContent();
 		List<ProfileListResponse> popularProfiles = profileService.getProfileList(
+			memberId,
 			popularProfilesConditions,
 			pageable
 		).getContent();
 		List<RecruitmentListResponse> imminentRecruitments = recruitmentService.getRecruitmentList(
+			memberId,
 			imminentRecruitmentConditions,
 			pageable
 		).getContent();

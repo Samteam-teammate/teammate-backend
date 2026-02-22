@@ -15,9 +15,10 @@ public record ProfileListResponse(
 	Boolean isOpenToWork,
 	String profileImage,
 	List<Part> parts,
-	List<Skill> skills
+	List<Skill> skills,
+	Boolean isScraped
 ) {
-	public static ProfileListResponse from(Profile profile) {
+	public static ProfileListResponse from(Profile profile, Boolean isScraped) {
 		return ProfileListResponse.builder()
 			.profileId(profile.getId())
 			.nickname(profile.getNickname())
@@ -26,6 +27,7 @@ public record ProfileListResponse(
 			.profileImage(profile.getProfileImage())
 			.parts(profile.getProfileParts())
 			.skills(profile.getProfileSkills())
+			.isScraped(isScraped)
 			.build();
 	}
 }

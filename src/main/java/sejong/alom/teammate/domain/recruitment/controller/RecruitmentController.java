@@ -8,6 +8,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -75,12 +77,13 @@ public class RecruitmentController {
 	public ResponseEntity<BaseResponse<Page<RecruitmentListResponse>>> getProfileList(
 		@ParameterObject @Valid RecruitmentListFetchRequest request,
 		@RequestParam(value = "page", required = false, defaultValue = "0") int page,
-		@RequestParam(value = "size", required = false, defaultValue = "20") int size
-		// @AuthenticationPrincipal User principal // TODO: Scrap 할 때 추가
+		@RequestParam(value = "size", required = false, defaultValue = "20") int size,
+		@AuthenticationPrincipal User principal
 	) {
 		Pageable pageable = PageRequest.of(page, size);
 
-		Page<RecruitmentListResponse> recruitmentList = recruitmentService.getRecruitmentList(request, pageable);
+		Page<RecruitmentListResponse> recruitmentList =
+			recruitmentService.getRecruitmentList(Long.parseLong(principal.getUsername()), request, pageable);
 
 		return ResponseEntity.status(HttpStatus.OK).body(BaseResponse.success("모집 공고 목록이 조회되었습니다.", recruitmentList));
 	}

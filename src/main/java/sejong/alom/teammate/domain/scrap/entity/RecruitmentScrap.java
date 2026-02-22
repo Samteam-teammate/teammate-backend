@@ -24,7 +24,7 @@ import sejong.alom.teammate.global.util.BaseTimeEntity;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Table(name = "team_scrap")
+@Table(name = "recruitment_scrap") // TODO: 인덱스
 public class RecruitmentScrap extends BaseTimeEntity {
 	@Id
 	@GeneratedValue(
