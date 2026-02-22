@@ -1,6 +1,5 @@
 package sejong.alom.teammate.domain.chat.controller;
 
-import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -11,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -56,8 +56,11 @@ public class ChatRoomController {
 
 	@GetMapping
 	@Operation(summary = "채팅방 목록 조회")
-	public ResponseEntity<BaseResponse<List<ChatRoomResponse>>> getMyRooms(@AuthenticationPrincipal User principal) {
-		List<ChatRoomResponse> response = chatRoomService.getMyChatRooms(Long.parseLong(principal.getUsername()));
+	public ResponseEntity<BaseResponse<Page<ChatRoomResponse>>> getMyRooms(
+		@AuthenticationPrincipal User principal,
+		@PageableDefault(size = 20) Pageable pageable
+	) {
+		Page<ChatRoomResponse> response = chatRoomService.getMyChatRooms(Long.parseLong(principal.getUsername()), pageable);
 
 		return ResponseEntity.status(HttpStatus.OK)
 			.body(BaseResponse.success("채팅방 목록이 조회되었습니다.", response));
@@ -71,5 +74,15 @@ public class ChatRoomController {
 		Page<ChatMessageResponse> response = chatRoomService.getMessages(roomId, pageable);
 
 		return ResponseEntity.ok(BaseResponse.success("채팅 내역 조회", response));
+	}
+
+	@PatchMapping("/{roomId}/read")
+	@Operation(summary = "채팅방 읽음 처리", description = "안 읽음 상태를 해제하기 위해 채팅방 입장 시 호출이 필요합니다.")
+	public ResponseEntity<BaseResponse<?>> updateLastReadTime(
+		@PathVariable Long roomId,
+		@AuthenticationPrincipal User principal) {
+		chatRoomService.updateLastReadTime(Long.parseLong(principal.getUsername()), roomId);
+		return ResponseEntity.status(HttpStatus.OK)
+			.body(BaseResponse.success("읽음 처리되었습니다."));
 	}
 }

@@ -1,11 +1,14 @@
 package sejong.alom.teammate.domain.chat.entity;
 
+import java.time.LocalDateTime;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
@@ -23,7 +26,9 @@ import sejong.alom.teammate.global.util.BaseTimeEntity;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Table(name = "chat_participant")
+@Table(name = "chat_participant", indexes = {
+	@Index(name = "idx_chat_part_member_room", columnList = "member_id, chat_room_id", unique = true)
+})
 public class ChatParticipant extends BaseTimeEntity {
 	@Id
 	@GeneratedValue(
@@ -44,4 +49,10 @@ public class ChatParticipant extends BaseTimeEntity {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "member_id")
 	private Member member;
+
+	private LocalDateTime lastReadAt;
+
+	public void updateLastReadAt() {
+		this.lastReadAt = LocalDateTime.now();
+	}
 }

@@ -3,6 +3,8 @@ package sejong.alom.teammate.domain.chat.repository;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -19,4 +21,14 @@ public interface ChatParticipantRepository extends JpaRepository<ChatParticipant
 
 	@Query("select cp from ChatParticipant cp join fetch cp.chatRoom where cp.member.id = :memberId")
 	List<ChatParticipant> findAllByMemberId(@Param("memberId") Long memberId);
+
+	@Query(value = "SELECT cp FROM ChatParticipant cp " +
+		"LEFT JOIN ChatMessage cm ON cp.chatRoom = cm.chatRoom " +
+		"WHERE cp.member.id = :memberId " +
+		"GROUP BY cp " +
+		"ORDER BY MAX(cm.createdAt) DESC",
+		countQuery = "SELECT count(cp) FROM ChatParticipant cp WHERE cp.member.id = :memberId")
+	Page<ChatParticipant> findAllByMemberIdOrderByLatestMessage(@Param("memberId") Long memberId, Pageable pageable);
+
+	Optional<ChatParticipant> findByChatRoomIdAndMemberId(Long chatRoomId, Long memberId);
 }

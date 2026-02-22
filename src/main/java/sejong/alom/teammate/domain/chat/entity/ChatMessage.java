@@ -6,6 +6,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
@@ -22,7 +23,9 @@ import sejong.alom.teammate.global.util.BaseTimeEntity;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Table(name = "chat_message")
+@Table(name = "chat_message", indexes = {
+	@Index(name = "idx_chat_msg_room_created", columnList = "chat_room_id, created_at DESC")
+})
 public class ChatMessage extends BaseTimeEntity {
 	@Id
 	@GeneratedValue(
