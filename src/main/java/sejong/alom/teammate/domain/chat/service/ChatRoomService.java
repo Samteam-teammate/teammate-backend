@@ -1,13 +1,19 @@
 package sejong.alom.teammate.domain.chat.service;
 
+import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
+import sejong.alom.teammate.domain.chat.dto.ChatMessageResponse;
+import sejong.alom.teammate.domain.chat.dto.ChatRoomResponse;
 import sejong.alom.teammate.domain.chat.entity.ChatParticipant;
 import sejong.alom.teammate.domain.chat.entity.ChatRoom;
+import sejong.alom.teammate.domain.chat.repository.ChatMessageRepository;
 import sejong.alom.teammate.domain.chat.repository.ChatParticipantRepository;
 import sejong.alom.teammate.domain.chat.repository.ChatRoomRepository;
 import sejong.alom.teammate.domain.member.entity.Member;
@@ -23,6 +29,7 @@ public class ChatRoomService {
 	private final ChatParticipantRepository chatParticipantRepository;
 	private final MemberRepository memberRepository;
 	private final TeamRepository teamRepository;
+	private final ChatMessageRepository chatMessageRepository;
 
 	@Transactional
 	public Long getOrCreatePrivateRoom(Long myId, Long targetId) {
@@ -71,5 +78,22 @@ public class ChatRoomService {
 		}
 
 		return teamRoom.getId();
+	}
+
+	@Transactional(readOnly = true)
+	public List<ChatRoomResponse> getMyChatRooms(Long memberId) {
+		List<ChatParticipant> myParticipationInfo = chatParticipantRepository.findAllByMemberId(memberId);
+
+		return myParticipationInfo.stream().map(cp -> {
+			ChatRoom room = cp.getChatRoom();
+			String roomName = room.getName();
+			return ChatRoomResponse.from(room, roomName);
+		}).toList();
+	}
+
+	@Transactional(readOnly = true)
+	public Page<ChatMessageResponse> getMessages(Long roomId, Pageable pageable) {
+		return chatMessageRepository.findAllByChatRoomIdOrderByCreatedAtDesc(roomId, pageable)
+			.map(ChatMessageResponse::from);
 	}
 }
