@@ -2,6 +2,8 @@ package sejong.alom.teammate.domain.chat.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -12,6 +14,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import sejong.alom.teammate.global.enums.ChatType;
 import sejong.alom.teammate.global.util.BaseTimeEntity;
 
 @Entity
@@ -34,4 +37,9 @@ public class ChatRoom extends BaseTimeEntity {
 	private Long id;
 
 	private String name;
+
+	@Enumerated(EnumType.STRING)
+	private ChatType type;
+
+	private Long teamId;
 }
