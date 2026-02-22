@@ -62,12 +62,13 @@ public class ProfileController {
 	public ResponseEntity<BaseResponse<Page<ProfileListResponse>>> getProfileList(
 		@ParameterObject @Valid ProfileListFetchRequest request,
 		@RequestParam(value = "page", required = false, defaultValue = "0") int page,
-		@RequestParam(value = "size", required = false, defaultValue = "20") int size
-		// @AuthenticationPrincipal User principal // TODO: Scrap 할 때 추가
+		@RequestParam(value = "size", required = false, defaultValue = "20") int size,
+		@AuthenticationPrincipal User principal
 	) {
 		Pageable pageable = PageRequest.of(page, size);
 
-		Page<ProfileListResponse> profileList = profileService.getProfileList(request, pageable);
+		Page<ProfileListResponse> profileList =
+			profileService.getProfileList(Long.parseLong(principal.getUsername()), request, pageable);
 
 		return ResponseEntity.status(HttpStatus.OK)
 			.body(BaseResponse.success("프로필 목록이 조회되었습니다.", profileList));

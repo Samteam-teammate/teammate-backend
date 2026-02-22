@@ -18,9 +18,10 @@ public record RecruitmentListResponse(
 	TeamCategory category,
 	String teamBio,
 	List<Part> recruitmentParts,
-	LocalDateTime deadline
+	LocalDateTime deadline,
+	Boolean isScraped
 ) {
-	public static RecruitmentListResponse from(Recruitment recruitment) {
+	public static RecruitmentListResponse from(Recruitment recruitment, Boolean isScraped) {
 		Team team = recruitment.getTeam();
 		return RecruitmentListResponse.builder()
 			.recruitmentId(recruitment.getId())
@@ -31,6 +32,7 @@ public record RecruitmentListResponse(
 			.recruitmentParts(recruitment.getRecruitmentParts().stream()
 				.map(RecruitmentPart::getPart).toList())
 			.deadline(recruitment.getDeadline())
+			.isScraped(isScraped)
 			.build();
 
 	}

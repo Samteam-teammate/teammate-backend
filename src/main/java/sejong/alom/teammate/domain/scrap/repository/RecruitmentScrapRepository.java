@@ -1,6 +1,8 @@
 package sejong.alom.teammate.domain.scrap.repository;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,4 +22,8 @@ public interface RecruitmentScrapRepository extends JpaRepository<RecruitmentScr
 		"where rs.member.id = :memberId",
 		countQuery = "select count(rs) from RecruitmentScrap rs where rs.member.id = :memberId")
 	Page<RecruitmentScrap> findAllByMemberIdWithRecruitmentAndTeam(@Param("memberId") Long memberId, Pageable pageable);
+
+	@Query("select rs.recruitment.id from RecruitmentScrap rs " +
+		"where rs.member.id = :memberId and rs.recruitment.id in :recruitmentIds")
+	Set<Long> findScrappedRecruitmentIds(@Param("memberId") Long memberId, @Param("recruitmentIds") List<Long> recruitmentIds);
 }
