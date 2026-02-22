@@ -9,7 +9,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 
 import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -75,9 +74,10 @@ public class ProfileRepositoryImpl implements ProfileRepositoryCustom {
 
 	private OrderSpecifier<?> getOrderSpecifier(SortingType sort) {
 		return switch (sort) {
-			case LATEST -> new OrderSpecifier<>(Order.DESC, profile.updatedAt);
-			case RELEVANCE -> new OrderSpecifier<>(Order.ASC, profile.id); // TODO: 관련도
-			default -> new OrderSpecifier<>(Order.DESC, profile.id);
+			case LATEST -> profile.updatedAt.desc();
+			case RELEVANCE -> profile.id.asc(); // TODO: 관련도
+			case POPULAR -> profile.scrapCount.desc();
+			default -> profile.id.desc();
 		};
 	}
 }

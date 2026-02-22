@@ -82,6 +82,7 @@ public class RecruitmentRepositoryImpl implements RecruitmentRepositoryCustom{
 		return switch (sort) {
 			case LATEST -> recruitment.createdAt.desc();
 			case IMMINENT -> recruitment.deadline.asc(); // 마감 임박순
+			case POPULAR -> recruitment.scrapCount.desc();
 			default -> recruitment.updatedAt.asc();
 		};
 	}

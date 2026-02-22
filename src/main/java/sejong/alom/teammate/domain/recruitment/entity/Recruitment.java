@@ -54,6 +54,9 @@ public class Recruitment extends BaseTimeEntity {
 	@OneToMany(mappedBy = "recruitment", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<RecruitmentPart> recruitmentParts = new ArrayList<>();
 
+	@Column(name = "scrap_count")
+	private Integer scrapCount = 0;
+
 	public void update(LocalDateTime deadline, String description) {
 		if (deadline != null) this.deadline = deadline;
 		if (description != null) this.description = description;
@@ -63,5 +66,13 @@ public class Recruitment extends BaseTimeEntity {
 		this.recruitmentParts.clear(); // 기존 파트 삭제 (orphanRemoval = true 설정 필요)
 		this.recruitmentParts.addAll(newParts);
 		newParts.forEach(part -> part.setRecruitment(this));
+	}
+
+	public void increaseScrapCount() {
+		this.scrapCount++;
+	}
+
+	public void decreaseScrapCount() {
+		if (this.scrapCount>0) this.scrapCount--;
 	}
 }

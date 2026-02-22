@@ -45,6 +45,7 @@ public class ScrapService {
 				.member(member)
 				.build()
 		);
+		recruitment.increaseScrapCount();
 	}
 
 	@Transactional
@@ -53,6 +54,7 @@ public class ScrapService {
 			.orElseThrow(() -> new BusinessException(ErrorCode.SCRAP_NOT_FOUND));
 
 		recruitmentScrapRepository.delete(scrap);
+		scrap.getRecruitment().decreaseScrapCount();
 	}
 
 	@Transactional(readOnly = true)
@@ -76,6 +78,7 @@ public class ScrapService {
 				.member(member)
 				.build()
 		);
+		profile.increaseScrapCount();
 	}
 
 	@Transactional
@@ -84,6 +87,7 @@ public class ScrapService {
 			.orElseThrow(() -> new BusinessException(ErrorCode.SCRAP_NOT_FOUND));
 
 		profileScrapRepository.delete(scrap);
+		scrap.getProfile().decreaseScrapCount();
 	}
 
 	@Transactional(readOnly = true)
