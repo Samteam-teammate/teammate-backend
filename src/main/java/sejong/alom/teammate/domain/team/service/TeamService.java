@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +26,7 @@ import sejong.alom.teammate.domain.team.repository.TeamRepository;
 import sejong.alom.teammate.global.enums.TeamMemberRole;
 import sejong.alom.teammate.global.exception.BusinessException;
 import sejong.alom.teammate.global.exception.docs.ErrorCode;
+import sejong.alom.teammate.global.util.S3Service;
 
 @Slf4j
 @Service
@@ -35,15 +37,21 @@ public class TeamService {
 	private final TeamMemberRepository teamMemberRepository;
 	private final TeamMemberService teamMemberService;
 	private final RecruitmentRepository recruitmentRepository;
+	private final S3Service s3Service;
 
 	@Transactional
-	public void generateTeam(Long memberId, TeamCreateRequest request) {
+	public void generateTeam(Long memberId, TeamCreateRequest request, MultipartFile teamImage) {
 		// 멤버 조회
 		Member member = memberRepository.findById(memberId)
 			.orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND));
 
+		String imageUrl = null;
+		if (teamImage != null && !teamImage.isEmpty()) {
+			imageUrl = s3Service.upload(teamImage, "teams");
+		}
+
 		// 팀 생성 및 저장
-		Team team = teamRepository.save(request.to());
+		Team team = teamRepository.save(request.to(imageUrl));
 		teamMemberRepository.save(
 			TeamMember.builder()
 				.team(team)
@@ -97,9 +105,23 @@ public class TeamService {
 			request.bio(),
 			request.category(),
 			request.maxMemberCount(),
-			request.teamImage(),
 			request.isPublic()
 		);
+	}
+
+	@Transactional
+	public void updateTeamImage(Long teamId, MultipartFile file) {
+		Team team = teamRepository.findById(teamId)
+			.orElseThrow(() -> new BusinessException(ErrorCode.TEAM_NOT_FOUND));
+
+		// 기존 이미지가 있다면 S3에서 삭제
+		if (team.getTeamImage() != null) {
+			s3Service.delete(team.getTeamImage());
+		}
+
+		// 새 이미지 업로드 후 URL 업데이트
+		String imageUrl = s3Service.upload(file, "teams");
+		team.updateImageUrl(imageUrl);
 	}
 
 	@Transactional

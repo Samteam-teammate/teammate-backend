@@ -10,5 +10,6 @@ import sejong.alom.teammate.domain.member.entity.Profile;
 
 public interface ProfileRepository extends JpaRepository<Profile, Long>, ProfileRepositoryCustom {
 	Optional<Profile> findByMember(Member member);
+	Optional<Profile> findByMemberId(Long memberId);
 	List<Profile> findAllByMemberIdIn(List<Long> memberIds);
 }

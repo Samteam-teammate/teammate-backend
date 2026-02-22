@@ -58,6 +58,9 @@ dependencies {
     // websocket
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
 
+    // AWS S3
+    implementation 'io.awspring.cloud:spring-cloud-aws-starter-s3:4.0.0'
+
     // test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.boot:spring-boot-starter-security-test'
