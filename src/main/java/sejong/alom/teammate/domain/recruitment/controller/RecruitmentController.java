@@ -8,6 +8,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,25 +33,28 @@ import sejong.alom.teammate.domain.recruitment.service.RecruitmentService;
 import sejong.alom.teammate.global.util.BaseResponse;
 
 @RestController
-@RequestMapping("/api/recruitments")
+@RequestMapping("/api")
 @RequiredArgsConstructor
 @Tag(name = "Recruitment API", description = "팀원 모집 공고 관련 API 엔드포인트")
 public class RecruitmentController {
 	private final RecruitmentService recruitmentService;
 
-	@PostMapping
+	@PostMapping("/teams/{teamId}/recruitments")
 	@Operation(summary = "모집 공고 생성")
+	@PreAuthorize("@teamAuth.isTeamLeader(#teamId, principal.username)")
 	public ResponseEntity<BaseResponse<?>> createRecruitment(
+		@PathVariable Long teamId,
 		@RequestBody RecruitmentCreateRequest request
 	) {
-		Map<String, Long> response = recruitmentService.generateRecruitment(request);
+		Map<String, Long> response = recruitmentService.generateRecruitment(teamId, request);
 
 		return ResponseEntity.status(HttpStatus.OK)
 			.body(BaseResponse.success("모집 공고가 생성되었습니다.", response));
 	}
 
-	@PatchMapping("/{recruitmentsId}")
+	@PatchMapping("/recruitments/{recruitmentsId}")
 	@Operation(summary = "모집 공고 수정")
+	@PreAuthorize("@teamAuth.isLeaderByRecruitment(#recruitmentsId, principal.username)")
 	public ResponseEntity<BaseResponse<?>> updateRecruitment(
 		@PathVariable Long recruitmentsId,
 		@RequestBody RecruitmentUpdateRequest request
@@ -61,7 +65,7 @@ public class RecruitmentController {
 			.body(BaseResponse.success("모집 공고가 수정되었습니다."));
 	}
 
-	@GetMapping("/{recruitmentId}")
+	@GetMapping("/recruitments/{recruitmentId}")
 	@Operation(summary = "모집 공고 상세 정보 조회")
 	public ResponseEntity<BaseResponse<RecruitmentDetailResponse>> getRecruitmentDetail(
 		@PathVariable Long recruitmentId
@@ -72,7 +76,7 @@ public class RecruitmentController {
 			.body(BaseResponse.success("모집 공고가 조회되었습니다.", response));
 	}
 
-	@GetMapping
+	@GetMapping("/recruitments")
 	@Operation(summary = "모집 공고 목록 조회")
 	public ResponseEntity<BaseResponse<Page<RecruitmentListResponse>>> getProfileList(
 		@ParameterObject @Valid RecruitmentListFetchRequest request,

@@ -74,16 +74,7 @@ public class ApplyService {
 		);
 	}
 
-	public Page<ApplicantResponse> getApplicants(Long memberId, Long recruitmentId, Pageable pageable) {
-		// 공고 조회
-		Recruitment recruitment = recruitmentRepository.findById(recruitmentId)
-			.orElseThrow(() -> new BusinessException(ErrorCode.RECRUITMENT_NOT_FOUND));
-
-		// 팀원 권한 체크
-		if (!teamMemberRepository.existsByTeamIdAndMemberId(recruitment.getTeam().getId(), memberId)) {
-			throw new BusinessException(ErrorCode.FORBIDDEN_ERROR);
-		}
-
+	public Page<ApplicantResponse> getApplicants(Long recruitmentId, Pageable pageable) {
 		// Apply와 Member 패치 조인
 		Page<Apply> applyPage = applyRepository.findAllByRecruitmentIdWithMember(recruitmentId, pageable);
 
@@ -107,18 +98,13 @@ public class ApplyService {
 	}
 
 	@Transactional
-	public void decideApplyStatus(Long currentMemberId, Long applyId, ApplyStatus status) {
+	public void decideApplyStatus(Long recruitmentId, Long applyId, ApplyStatus status) {
 		// 지원 정보 조회
 		Apply apply = applyRepository.findById(applyId)
 			.orElseThrow(() -> new BusinessException(ErrorCode.APPLY_NOT_FOUND));
-		Team team = apply.getRecruitment().getTeam();
-
-		// api 요청자의 권한 확인
-		TeamMember currentTeamMember = teamMemberRepository.findByTeamIdAndMemberId(team.getId(), currentMemberId)
-			.orElseThrow(() -> new BusinessException(ErrorCode.FORBIDDEN_ERROR));
-		if (currentTeamMember.getRole() != TeamMemberRole.LEADER) {
-			throw new BusinessException(ErrorCode.FORBIDDEN_ERROR);
-		}
+		Team team = recruitmentRepository.findById(recruitmentId)
+			.orElseThrow(() -> new BusinessException(ErrorCode.RECRUITMENT_NOT_FOUND))
+			.getTeam();
 
 		apply.updateStatus(status);
 

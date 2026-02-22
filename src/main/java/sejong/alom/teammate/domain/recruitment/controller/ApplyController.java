@@ -6,6 +6,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -49,24 +50,25 @@ public class ApplyController {
 
 	@GetMapping("/recruitments/{recruitmentId}/applies")
 	@Operation(summary = "지원자 목록 조회")
+	@PreAuthorize("@teamAuth.isMemberByRecruitment(#recruitmentId, principal.username)")
 	public ResponseEntity<BaseResponse<Page<ApplicantResponse>>> getApplicants(
-		@AuthenticationPrincipal User principal,
 		@PathVariable Long recruitmentId,
 		@PageableDefault(sort = "createdAt", direction = Sort.Direction.ASC) Pageable pageable
 	) {
-		Page<ApplicantResponse> response = applyService.getApplicants(Long.parseLong(principal.getUsername()), recruitmentId, pageable);
+		Page<ApplicantResponse> response = applyService.getApplicants(recruitmentId, pageable);
 
 		return ResponseEntity.ok(BaseResponse.success("지원자 목록을 조회했습니다.", response));
 	}
 
-	@PatchMapping("/applies/{applyId}/status")
+	@PatchMapping("/recruitments/{recruitmentId}/applies/{applyId}/status")
 	@Operation(summary = "지원자 합불 결정", description = "ACCEPTED 또는 REJECTED 상태로 변경합니다.")
+	@PreAuthorize("@teamAuth.isLeaderByRecruitment(#recruitmentId, principal.username)")
 	public ResponseEntity<BaseResponse<?>> decideApplyStatus(
-		@AuthenticationPrincipal User principal,
+		@PathVariable Long recruitmentId,
 		@PathVariable Long applyId,
 		@Valid @RequestBody ApplyStatusUpdateRequest request
 	) {
-		applyService.decideApplyStatus(Long.parseLong(principal.getUsername()), applyId, request.status());
+		applyService.decideApplyStatus(recruitmentId, applyId, request.status());
 
 		return ResponseEntity.status(HttpStatus.OK)
 			.body(BaseResponse.success("지원 상태가 변경되었습니다."));

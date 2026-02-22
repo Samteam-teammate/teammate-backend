@@ -58,9 +58,11 @@ public class EventService {
 	}
 
 	private Event getValidEvent(Long teamId, Long eventId) {
+		// 일정 조회
 		Event event = eventRepository.findById(eventId)
 			.orElseThrow(() -> new BusinessException(ErrorCode.EVENT_NOT_FOUND));
 
+		// 일정에 기재된 팀과 요청된 팀의 일치 확인
 		if (!event.getCalendar().getTeam().getId().equals(teamId)) {
 			throw new BusinessException(ErrorCode.FORBIDDEN_ERROR);
 		}

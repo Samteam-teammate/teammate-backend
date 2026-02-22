@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -64,6 +65,7 @@ public class TeamController {
 
 	@PatchMapping("/{teamId}")
 	@Operation(summary = "팀 정보 수정")
+	@PreAuthorize("@teamAuth.isTeamLeader(#teamId, principal.username)")
 	public ResponseEntity<BaseResponse<?>> updateTeam(
 		@PathVariable Long teamId,
 		@RequestBody TeamUpdateRequest request
@@ -89,6 +91,7 @@ public class TeamController {
 
 	@PatchMapping("/{teamId}/{memberId}")
 	@Operation(summary = "팀원 역할 할당")
+	@PreAuthorize("@teamAuth.isTeamLeader(#teamId, principal.username)")
 	public ResponseEntity<BaseResponse<?>> updateTeamMemberPart(
 		@PathVariable Long teamId,
 		@PathVariable Long memberId,

@@ -41,8 +41,8 @@ public class RecruitmentService {
 	private final RecruitmentScrapRepository recruitmentScrapRepository;
 
 	@Transactional
-	public Map<String, Long> generateRecruitment(RecruitmentCreateRequest request) {
-		Team team = teamRepository.findById(request.teamId())
+	public Map<String, Long> generateRecruitment(Long teamId, RecruitmentCreateRequest request) {
+		Team team = teamRepository.findById(teamId)
 			.orElseThrow(() -> new BusinessException(ErrorCode.TEAM_NOT_FOUND));
 
 		Recruitment recruitment = recruitmentRepository.save(request.to(team));

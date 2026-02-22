@@ -7,6 +7,7 @@ import java.util.Map;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -36,6 +37,7 @@ public class EventController {
 
 	@GetMapping
 	@Operation(summary = "일정 목록 조회", description = "날짜는 yyyy-MM-dd 형태로 받습니다")
+	@PreAuthorize("@teamAuth.isTeamMember(#teamId, principal.username)")
 	public ResponseEntity<BaseResponse<List<EventResponse>>> getEvents(
 		@PathVariable Long teamId,
 		@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
@@ -47,6 +49,7 @@ public class EventController {
 
 	@PostMapping
 	@Operation(summary = "일정 생성")
+	@PreAuthorize("@teamAuth.isTeamMember(#teamId, principal.username)")
 	public ResponseEntity<BaseResponse<?>> createEvent(
 		@PathVariable Long teamId,
 		@Valid @RequestBody EventCreateRequest request
@@ -58,6 +61,7 @@ public class EventController {
 
 	@PatchMapping("/{eventId}")
 	@Operation(summary = "일정 수정")
+	@PreAuthorize("@teamAuth.isTeamMember(#teamId, principal.username)")
 	public ResponseEntity<BaseResponse<?>> updateEvent(
 		@PathVariable Long teamId,
 		@PathVariable Long eventId,
@@ -70,6 +74,7 @@ public class EventController {
 
 	@DeleteMapping("/{eventId}")
 	@Operation(summary = "일정 삭제")
+	@PreAuthorize("@teamAuth.isTeamMember(#teamId, principal.username)")
 	public ResponseEntity<BaseResponse<?>> deleteEvent(@PathVariable Long teamId, @PathVariable Long eventId) {
 		eventService.deleteEvent(teamId, eventId);
 		return ResponseEntity.ok(BaseResponse.success("일정이 삭제되었습니다."));

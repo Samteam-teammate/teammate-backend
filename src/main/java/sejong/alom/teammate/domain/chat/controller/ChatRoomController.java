@@ -1,12 +1,15 @@
 package sejong.alom.teammate.domain.chat.controller;
 
 
+import java.util.Map;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,26 +35,27 @@ public class ChatRoomController {
 
 	@PostMapping("/private")
 	@Operation(summary = "개인 채팅방 단일 조회")
-	public ResponseEntity<BaseResponse<Long>> createPrivateRoom(
+	public ResponseEntity<BaseResponse<Map<String, Long>>> createPrivateRoom(
 		@AuthenticationPrincipal User principal,
 		@RequestParam Long targetId
 	) {
 		Long roomId = chatRoomService.getOrCreatePrivateRoom(Long.parseLong(principal.getUsername()), targetId);
 
 		return ResponseEntity.status(HttpStatus.OK)
-			.body(BaseResponse.success("채팅방이 조회되었습니다.", roomId));
+			.body(BaseResponse.success("채팅방이 조회되었습니다.", Map.of("roomId", roomId)));
 	}
 
 	@PostMapping("/team/{teamId}")
 	@Operation(summary = "팀 채팅방 단일 조회")
-	public ResponseEntity<BaseResponse<Long>> createTeamRoom(
+	@PreAuthorize("@teamAuth.isTeamMember(#teamId, principal.username)")
+	public ResponseEntity<BaseResponse<Map<String, Long>>> createTeamRoom(
 		@AuthenticationPrincipal User principal,
 		@PathVariable Long teamId
 	) {
 		Long roomId = chatRoomService.getOrCreateTeamRoom(teamId, Long.parseLong(principal.getUsername()));
 
 		return ResponseEntity.status(HttpStatus.OK)
-			.body(BaseResponse.success("채팅방이 조회되었습니다.", roomId));
+			.body(BaseResponse.success("채팅방이 조회되었습니다.", Map.of("roomId", roomId)));
 	}
 
 	@GetMapping
