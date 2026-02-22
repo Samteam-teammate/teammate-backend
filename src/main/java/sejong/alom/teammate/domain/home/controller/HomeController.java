@@ -27,7 +27,6 @@ public class HomeController {
 	public ResponseEntity<BaseResponse<HomeResponse>> getHomeContent(
 		@AuthenticationPrincipal User principal
 	) {
-		// TODO: 내 프로필 혹은 내 팀 모집 공고 제외
 		HomeResponse response = homeService.getHomeContent(Long.parseLong(principal.getUsername()));
 
 		return ResponseEntity.status(HttpStatus.OK)
