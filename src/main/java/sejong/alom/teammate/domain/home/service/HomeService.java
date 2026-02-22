@@ -28,11 +28,11 @@ public class HomeService {
 		Pageable pageable = PageRequest.of(0, 5);
 
 		RecruitmentListFetchRequest popularRecruitmentConditions = RecruitmentListFetchRequest.builder()
-			.sort(SortingType.LATEST) // TODO: 스크랩 추가 후 수정
+			.sort(SortingType.POPULAR)
 			.isActive(true)
 			.build();
 		ProfileListFetchRequest popularProfilesConditions = ProfileListFetchRequest.builder()
-			.sort(SortingType.LATEST)
+			.sort(SortingType.POPULAR)
 			.build();
 		RecruitmentListFetchRequest imminentRecruitmentConditions = RecruitmentListFetchRequest.builder()
 			.sort(SortingType.IMMINENT)

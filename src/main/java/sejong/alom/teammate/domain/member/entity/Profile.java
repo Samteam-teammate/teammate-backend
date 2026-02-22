@@ -67,6 +67,9 @@ public class Profile extends BaseTimeEntity {
 	@Column(name = "skill_name")
 	private List<Skill> profileSkills = new ArrayList<>();
 
+	@Column(name = "scrap_count")
+	private Integer scrapCount = 0;
+
 	public void update(String nickname, String bio, String portfolioUrl, Boolean isOpenToWork,
 		Boolean isVisible, String profileImage, List<Part> parts, List<Skill> skills) {
 		if (nickname != null) this.nickname = nickname;
@@ -83,5 +86,13 @@ public class Profile extends BaseTimeEntity {
 			this.profileSkills.clear();
 			this.profileSkills.addAll(skills);
 		}
+	}
+
+	public void increaseScrapCount() {
+		this.scrapCount++;
+	}
+
+	public void decreaseScrapCount() {
+		if (this.scrapCount > 0) this.scrapCount--;
 	}
 }

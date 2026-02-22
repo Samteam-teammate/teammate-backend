@@ -6,6 +6,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
@@ -24,7 +25,9 @@ import sejong.alom.teammate.global.util.BaseTimeEntity;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Table(name = "profile_scrap") // TODO: 인덱스
+@Table(name = "profile_scrap", indexes = {
+	@Index(name = "idx_profile_scrap_member_profile", columnList = "member_id, profile_id", unique = true)
+})
 public class ProfileScrap extends BaseTimeEntity {
 	@Id
 	@GeneratedValue(
