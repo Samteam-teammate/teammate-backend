@@ -58,17 +58,20 @@ public class Team extends BaseTimeEntity {
 	private Calendar calendar;
 
 	public void update(String name, String bio, TeamCategory category,
-		Integer maxMemberCount, String teamImage, Boolean isPublic) {
+		Integer maxMemberCount, Boolean isPublic) {
 		if (name != null) this.name = name;
 		if (bio != null) this.bio = bio;
 		if (category != null) this.category = category;
 		if (maxMemberCount != null) this.maxMemberCount = maxMemberCount;
-		if (teamImage != null) this.teamImage = teamImage;
 		if (isPublic != null) this.isPublic = isPublic;
 	}
 
 	public void setCalendar(Calendar calendar) {
 		this.calendar = calendar;
 		calendar.setTeam(this);
+	}
+
+	public void updateImageUrl(String imageUrl) {
+		this.teamImage = imageUrl;
 	}
 }

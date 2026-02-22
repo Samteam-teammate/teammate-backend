@@ -7,16 +7,15 @@ public record TeamCreateRequest(
 	String name,
 	String bio,
 	TeamCategory category,
-	String teamImage,
 	Boolean isPublic,
 	Integer maxMemberCount
 ) {
-	public Team to() {
+	public Team to(String imageUrl) {
 		return Team.builder()
 			.name(name)
 			.bio(bio)
 			.category(category)
-			.teamImage(teamImage)
+			.teamImage(imageUrl)
 			.isPublic(isPublic)
 			.maxMemberCount(maxMemberCount)
 			.currentMemberCount(1)

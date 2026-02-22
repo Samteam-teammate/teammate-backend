@@ -3,6 +3,7 @@ package sejong.alom.teammate.domain.team.controller;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -13,7 +14,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -33,13 +36,14 @@ import sejong.alom.teammate.global.util.BaseResponse;
 public class TeamController {
 	private final TeamService teamService;
 
-	@PostMapping
+	@PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	@Operation(summary = "팀 생성")
 	public ResponseEntity<BaseResponse<?>> createTeam(
-		@RequestBody TeamCreateRequest request,
+		@RequestPart("teamInfo") TeamCreateRequest request,
+		@RequestPart(value = "teamImage", required = false) MultipartFile teamImage,
 		@AuthenticationPrincipal User principal
 	) {
-		teamService.generateTeam(Long.parseLong(principal.getUsername()), request);
+		teamService.generateTeam(Long.parseLong(principal.getUsername()), request, teamImage);
 
 		return ResponseEntity.status(HttpStatus.OK)
 			.body(BaseResponse.success("팀이 생성되었습니다."));
@@ -74,6 +78,19 @@ public class TeamController {
 
 		return ResponseEntity.status(HttpStatus.OK)
 			.body(BaseResponse.success("팀 정보가 수정되었습니다."));
+	}
+
+	@PatchMapping(value = "/{teamId}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	@Operation(summary = "팀 이미지 수정")
+	@PreAuthorize("@teamAuth.isTeamLeader(#teamId, principal.username)")
+	public ResponseEntity<BaseResponse<?>> updateTeamImage(
+		@PathVariable Long teamId,
+		@RequestPart("teamImage") MultipartFile file
+	) {
+		teamService.updateTeamImage(teamId, file);
+
+		return ResponseEntity.status(HttpStatus.OK)
+			.body(BaseResponse.success("팀 이미지가 수정되었습니다."));
 	}
 
 	@PostMapping("/{teamId}/{memberId}")

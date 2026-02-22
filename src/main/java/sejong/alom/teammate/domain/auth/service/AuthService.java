@@ -22,6 +22,7 @@ import sejong.alom.teammate.domain.member.repository.ProfileRepository;
 import sejong.alom.teammate.global.enums.MemberRole;
 import sejong.alom.teammate.global.exception.BusinessException;
 import sejong.alom.teammate.global.exception.docs.ErrorCode;
+import sejong.alom.teammate.global.util.S3Service;
 
 @Service
 @RequiredArgsConstructor
@@ -29,9 +30,10 @@ import sejong.alom.teammate.global.exception.docs.ErrorCode;
 public class AuthService {
 	private final MemberRepository memberRepository;
 	private final ProfileRepository profileRepository;
-	//private final SejongPortalLoginService sejongPortalLoginService;
+	//private final SejongPortalLoginService sejongPortalLoginService; // TODO: 로그인 정상화
 	private final AuthTokenProvider authTokenProvider;
 	private final RedisTemplate<String, String> redisTemplate;
+	private final S3Service s3Service;
 
 	@Transactional
 	public TokenDto login(MemberLoginRequest request) {
@@ -83,12 +85,14 @@ public class AuthService {
 			throw new BusinessException(ErrorCode.MEMBER_ALREADY_EXIST);
 		}
 
-		// TODO: 이미지 s3 업로드 후 String url 획득
-		String image = null;
+		String imageUrl = null;
+		if (profileImage != null && !profileImage.isEmpty()) {
+			imageUrl = s3Service.upload(profileImage, "profiles");
+		}
 
 		// 새로운 member, profile 데이터 저장
 		Member member = memberRepository.save(request.toMember());
-		profileRepository.save(request.toProfile(member, image));
+		profileRepository.save(request.toProfile(member, imageUrl));
 
 		// 회원가입 절차 완료 시 토큰 발행
 		return issueToken(member.getId());

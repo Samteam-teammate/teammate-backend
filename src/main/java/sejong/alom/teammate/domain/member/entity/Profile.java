@@ -71,13 +71,12 @@ public class Profile extends BaseTimeEntity {
 	private Integer scrapCount = 0;
 
 	public void update(String nickname, String bio, String portfolioUrl, Boolean isOpenToWork,
-		Boolean isVisible, String profileImage, List<Part> parts, List<Skill> skills) {
+		Boolean isVisible, List<Part> parts, List<Skill> skills) {
 		if (nickname != null) this.nickname = nickname;
 		if (bio != null) this.bio = bio;
 		if (portfolioUrl != null) this.portfolioUrl = portfolioUrl;
 		if (isOpenToWork != null) this.isOpenToWork = isOpenToWork;
 		if (isVisible != null) this.isVisible = isVisible;
-		if (profileImage != null) this.profileImage = profileImage;
 		if (parts != null) {
 			this.profileParts.clear();
 			this.profileParts.addAll(parts);
@@ -94,5 +93,9 @@ public class Profile extends BaseTimeEntity {
 
 	public void decreaseScrapCount() {
 		if (this.scrapCount > 0) this.scrapCount--;
+	}
+
+	public void updateImageUrl(String imageUrl) {
+		this.profileImage = imageUrl;
 	}
 }

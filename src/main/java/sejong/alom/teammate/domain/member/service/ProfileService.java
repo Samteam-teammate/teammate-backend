@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +22,7 @@ import sejong.alom.teammate.domain.member.repository.ProfileRepository;
 import sejong.alom.teammate.domain.scrap.repository.ProfileScrapRepository;
 import sejong.alom.teammate.global.exception.BusinessException;
 import sejong.alom.teammate.global.exception.docs.ErrorCode;
+import sejong.alom.teammate.global.util.S3Service;
 
 @Slf4j
 @Service
@@ -29,6 +31,7 @@ public class ProfileService {
 	private final ProfileRepository profileRepository;
 	private final MemberRepository memberRepository;
 	private final ProfileScrapRepository profileScrapRepository;
+	private final S3Service s3Service;
 
 	@Transactional(readOnly = true)
 	public ProfileResponse getMyProfile(Long memberId) {
@@ -57,10 +60,24 @@ public class ProfileService {
 			request.portfolioUrl(),
 			request.isOpenToWork(),
 			request.isVisible(),
-			request.profileImage(),
 			request.parts(),
 			request.skills()
 		);
+	}
+
+	@Transactional
+	public void updateProfileImage(Long memberId, MultipartFile file) {
+		Profile profile = profileRepository.findByMemberId(memberId)
+			.orElseThrow(() -> new BusinessException(ErrorCode.PROFILE_NOT_FOUND));
+
+		// 기존 이미지가 있다면 S3에서 삭제
+		if (profile.getProfileImage() != null) {
+			s3Service.delete(profile.getProfileImage());
+		}
+
+		// 새 이미지 업로드 후 URL 업데이트
+		String imageUrl = s3Service.upload(file, "profiles");
+		profile.updateImageUrl(imageUrl);
 	}
 
 	@Transactional(readOnly = true)

@@ -11,7 +11,6 @@ public record ProfileUpdateRequest(
 	String portfolioUrl,
 	Boolean isOpenToWork,
 	Boolean isVisible,
-	String profileImage,
 	List<Part> parts,
 	List<Skill> skills
 ) {
