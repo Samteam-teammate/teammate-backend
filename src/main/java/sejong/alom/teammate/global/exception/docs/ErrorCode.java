@@ -29,6 +29,7 @@ public enum ErrorCode {
 
 	// 401 Unauthorized
 	INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "J001", "토큰이 유효하지 않습니다."),
+	EXPIRED_TOKEN(HttpStatus.UNAUTHORIZED, "J002", "만료된 토큰입니다."),
 	UNAUTHORIZED_ERROR(HttpStatus.UNAUTHORIZED, "E401", "사용자 인증에 실패했습니다."),
 	SJU_AUTH_FAILED(HttpStatus.UNAUTHORIZED, "A001", "세종대 포털 인증에 실패했습니다."),
 

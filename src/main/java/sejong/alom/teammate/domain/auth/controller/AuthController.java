@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,12 +21,14 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import sejong.alom.teammate.domain.auth.dto.MemberLoginRequest;
 import sejong.alom.teammate.domain.auth.dto.MemberRegisterRequest;
 import sejong.alom.teammate.domain.auth.dto.TokenDto;
 import sejong.alom.teammate.domain.auth.service.AuthService;
 import sejong.alom.teammate.global.util.BaseResponse;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
@@ -67,10 +70,12 @@ public class AuthController {
 	@PostMapping("/logout")
 	@Operation(summary = "로그아웃", security = @SecurityRequirement(name = "bearerAuth"))
 	public ResponseEntity<BaseResponse<?>> logout(
-		@Parameter(hidden = true) @RequestHeader("Authorization") String authHeader
+		@Parameter(hidden = true) @RequestHeader(value = "Authorization", required = false) String authHeader
 	) {
-		// 로그아웃 - 토큰 관리
-		authService.logout(authHeader.substring(7));
+		if (StringUtils.hasText(authHeader) && authHeader.startsWith("Bearer ")) {
+			// 로그아웃 - 토큰 관리
+			authService.logout(authHeader.substring(7));
+		}
 
 		// 응답 반환
 		return ResponseEntity.status(HttpStatus.OK)

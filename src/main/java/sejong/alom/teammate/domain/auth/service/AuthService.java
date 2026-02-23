@@ -100,6 +100,13 @@ public class AuthService {
 
 	@Transactional
 	public void logout(String accessToken) {
+		// 유효하지 않은 토큰이어도 예외 처리하지 않음
+		try {
+			authTokenProvider.validateToken(accessToken);
+		} catch (Exception e) {
+			return;
+		}
+
 		// access 토큰을 블랙리스트로 등록
 		Long accessRemainingMs = authTokenProvider.getRemainingMs(accessToken);
 		redisTemplate.opsForValue().set("auth:blacklist:" + accessToken, "logout", accessRemainingMs, TimeUnit.MILLISECONDS);
