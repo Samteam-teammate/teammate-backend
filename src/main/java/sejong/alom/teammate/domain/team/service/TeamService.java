@@ -40,7 +40,7 @@ public class TeamService {
 	private final S3Service s3Service;
 
 	@Transactional
-	public void generateTeam(Long memberId, TeamCreateRequest request, MultipartFile teamImage) {
+	public Long generateTeam(Long memberId, TeamCreateRequest request, MultipartFile teamImage) {
 		// 멤버 조회
 		Member member = memberRepository.findById(memberId)
 			.orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND));
@@ -62,6 +62,7 @@ public class TeamService {
 		Calendar calendar = Calendar.builder().build();
 		team.setCalendar(calendar);
 
+		return team.getId();
 	}
 
 	@Transactional(readOnly = true)
