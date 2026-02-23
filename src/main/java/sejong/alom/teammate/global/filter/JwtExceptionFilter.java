@@ -31,9 +31,9 @@ public class JwtExceptionFilter extends OncePerRequestFilter {
 		try {
 			filterChain.doFilter(request, response);
 		} catch (ExpiredJwtException e) {
-			setErrorResponse(response, ErrorCode.UNAUTHORIZED_ERROR, "만료된 토큰입니다.");
+			setErrorResponse(response, ErrorCode.EXPIRED_TOKEN, "만료된 토큰입니다.");
 		} catch (JwtException | IllegalArgumentException e) {
-			setErrorResponse(response, ErrorCode.UNAUTHORIZED_ERROR, "유효하지 않은 토큰입니다.");
+			setErrorResponse(response, ErrorCode.INVALID_TOKEN, "유효하지 않은 토큰입니다.");
 		} catch (Exception e) {
 			setErrorResponse(response, ErrorCode.SERVER_ERROR, "인증 처리 중 오류가 발생했습니다.");
 		}
