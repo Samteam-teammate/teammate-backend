@@ -1,6 +1,7 @@
 package sejong.alom.teammate.domain.team.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -43,10 +44,10 @@ public class TeamController {
 		@RequestPart(value = "teamImage", required = false) MultipartFile teamImage,
 		@AuthenticationPrincipal User principal
 	) {
-		teamService.generateTeam(Long.parseLong(principal.getUsername()), request, teamImage);
+		Long teamId = teamService.generateTeam(Long.parseLong(principal.getUsername()), request, teamImage);
 
 		return ResponseEntity.status(HttpStatus.OK)
-			.body(BaseResponse.success("팀이 생성되었습니다."));
+			.body(BaseResponse.success("팀이 생성되었습니다.", Map.of("teamId", teamId)));
 	}
 
 	@GetMapping
