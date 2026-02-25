@@ -28,6 +28,7 @@ public class ProfileRepositoryImpl implements ProfileRepositoryCustom {
 	public Page<Profile> searchProfiles(ProfileListFetchRequest request, Pageable pageable) {
 		List<Profile> content = queryFactory
 			.selectFrom(profile)
+			.distinct()
 			.where(
 				partsAllMatch(request.part()),   // 중간 테이블을 거친 AND 로직
 				skillsAllMatch(request.skill()), // 중간 테이블을 거친 AND 로직

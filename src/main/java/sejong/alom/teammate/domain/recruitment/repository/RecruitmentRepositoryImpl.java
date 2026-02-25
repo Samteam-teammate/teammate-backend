@@ -31,7 +31,8 @@ public class RecruitmentRepositoryImpl implements RecruitmentRepositoryCustom{
 	public Page<Recruitment> searchRecruitments(RecruitmentListFetchRequest request, Pageable pageable) {
 		List<Recruitment> content = queryFactory
 			.selectFrom(recruitment)
-			// [주의] 페이징 시 Collection Fetch Join은 메모리 이슈로 피하고, 대신 Batch Size 설정을 활용합니다.
+			.distinct()
+			// [주의] 페이징 시 Collection Fetch Join은 메모리 이슈로 피하고, 대신 Batch Size 설정을 활용
 			.join(recruitment.team, team).fetchJoin()
 			.leftJoin(recruitment.recruitmentParts, recruitmentPart)
 			.where(
