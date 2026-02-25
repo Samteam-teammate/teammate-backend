@@ -19,7 +19,9 @@ public record RecruitmentListResponse(
 	String teamBio,
 	List<Part> recruitmentParts,
 	LocalDateTime deadline,
-	Boolean isScraped
+	Boolean isScraped,
+	Integer currentMemberCount,
+	Integer maxMemberCount
 ) {
 	public static RecruitmentListResponse from(Recruitment recruitment, Boolean isScraped) {
 		Team team = recruitment.getTeam();
@@ -33,6 +35,8 @@ public record RecruitmentListResponse(
 				.map(RecruitmentPart::getPart).toList())
 			.deadline(recruitment.getDeadline())
 			.isScraped(isScraped)
+			.currentMemberCount(team.getCurrentMemberCount())
+			.maxMemberCount(team.getMaxMemberCount())
 			.build();
 
 	}

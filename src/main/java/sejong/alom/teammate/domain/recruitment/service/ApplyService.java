@@ -117,6 +117,7 @@ public class ApplyService {
 				.part(apply.getAppliedPart())
 				.build();
 			teamMemberRepository.save(newTeamMember);
+			team.increaseMemberCount();
 		}
 	}
 

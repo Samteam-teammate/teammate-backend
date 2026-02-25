@@ -74,4 +74,8 @@ public class Team extends BaseTimeEntity {
 	public void updateImageUrl(String imageUrl) {
 		this.teamImage = imageUrl;
 	}
+
+	public void increaseMemberCount() {
+		currentMemberCount++;
+	}
 }

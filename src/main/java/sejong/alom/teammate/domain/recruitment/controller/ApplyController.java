@@ -31,7 +31,7 @@ import sejong.alom.teammate.global.util.BaseResponse;
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
-@Tag(name = "Apply API", description = "모집 공고 지원 관련 API 엔드포인트")
+@Tag(name = "Apply API", description = "지원 관련 API 엔드포인트")
 public class ApplyController {
 	private final ApplyService applyService;
 
