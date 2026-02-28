@@ -55,18 +55,21 @@ public class Profile extends BaseTimeEntity {
 	private Boolean isVisible;
 	private String profileImage;
 
+	@Builder.Default
 	@ElementCollection(targetClass = Part.class)
 	@CollectionTable(name = "profile_parts", joinColumns = @JoinColumn(name = "profile_id"))
 	@Enumerated(EnumType.STRING)
 	@Column(name = "part_name")
 	private List<Part> profileParts = new ArrayList<>();
 
+	@Builder.Default
 	@ElementCollection(targetClass = Skill.class)
 	@CollectionTable(name = "profile_skills", joinColumns = @JoinColumn(name = "profile_id"))
 	@Enumerated(EnumType.STRING)
 	@Column(name = "skill_name")
 	private List<Skill> profileSkills = new ArrayList<>();
 
+	@Builder.Default
 	@Column(name = "scrap_count")
 	private Integer scrapCount = 0;
 

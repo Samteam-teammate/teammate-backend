@@ -46,6 +46,7 @@ public class Calendar extends BaseTimeEntity {
 	@JoinColumn(name = "team_id")
 	private Team team;
 
+	@Builder.Default
 	@OneToMany(mappedBy = "calendar", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Event> events = new ArrayList<>();
 

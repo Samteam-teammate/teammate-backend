@@ -51,9 +51,11 @@ public class Recruitment extends BaseTimeEntity {
 
 	private String description;
 
+	@Builder.Default
 	@OneToMany(mappedBy = "recruitment", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<RecruitmentPart> recruitmentParts = new ArrayList<>();
 
+	@Builder.Default
 	@Column(name = "scrap_count")
 	private Integer scrapCount = 0;
 
