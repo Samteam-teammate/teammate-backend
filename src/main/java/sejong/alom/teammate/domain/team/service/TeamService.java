@@ -74,7 +74,6 @@ public class TeamService {
 		// 팀원으로 속해있는 데이터 찾아서 팀 추출
 		List<TeamMember> teamMembers = teamMemberRepository.findAllByMember(member);
 		return teamMembers.stream()
-			.map(TeamMember::getTeam)
 			.map(TeamListResponse::from)
 			.toList();
 	}
